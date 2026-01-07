@@ -257,11 +257,11 @@ model CreditApplication {
   id                String            @id @default(uuid()) @map("id") @db.VarChar(56)
   applicationNumber String            @unique @map("application_number") @db.VarChar(50) // Nomor pengajuan
   loanType          LoanType          @map("loan_type") // Jenis pinjaman
-  loanAmount        Decimal           @map("loan_amount") @db.Decimal(15, 2) // Jumlah pinjaman yang diajukan
+  loanAmount        Int               @map("loan_amount") // Jumlah pinjaman yang diajukan
   loanPeriod        Int               @map("loan_period") // Jangka waktu (bulan)
   loanPurpose       String?           @map("loan_purpose") @db.Text // Tujuan pinjaman
-  collateralValue   Decimal?          @map("collateral_value") @db.Decimal(15, 2) // Nilai agunan (jika ada)
-  monthlyIncome     Decimal           @map("monthly_income") @db.Decimal(15, 2) // Pendapatan per bulan
+  collateralValue   Int?              @map("collateral_value") // Nilai agunan (jika ada)
+  monthlyIncome     Int               @map("monthly_income") // Pendapatan per bulan
   incomeProof       String            @map("income_proof") // Bukti pembayaran
   monthlyExpenses   Int               @map("monthly_expenses") // Pengeluaran per bulan
   surplus           Int               @map("surplus") // Surplus (pendapatan - pengeluaran) per bulan
@@ -327,17 +327,17 @@ enum LoanStatus {
 model LoanReference {
   id              String     @id @default(uuid()) @map("id") @db.VarChar(56)
   loanNumber      String     @unique @map("loan_number") @db.VarChar(50) // Nomor pinjaman
-  principalAmount Decimal    @map("principal_amount") @db.Decimal(15, 2) // Jumlah pokok pinjaman
-  interestRate    Decimal    @map("interest_rate") @db.Decimal(5, 2) // Suku bunga per tahun (%)
+  principalAmount Int        @map("principal_amount") // Jumlah pokok pinjaman
+  interestRate    Int        @map("interest_rate") // Suku bunga per tahun (%)
   loanPeriod      Int        @map("loan_period") // Jangka waktu (bulan)
-  monthlyPayment  Decimal    @map("monthly_payment") @db.Decimal(15, 2) // Angsuran per bulan
-  totalPayment    Decimal    @map("total_payment") @db.Decimal(15, 2) // Total pembayaran
+  monthlyPayment  Int        @map("monthly_payment") // Angsuran per bulan
+  totalPayment    Int        @map("total_payment") // Total pembayaran
   status          LoanStatus @default(ACTIVE) @map("status") // Status pinjaman
   startDate       DateTime   @map("start_date") @db.Date // Tanggal mulai
   endDate         DateTime   @map("end_date") @db.Date // Tanggal jatuh tempo
   nextPaymentDate DateTime   @map("next_payment_date") @db.Date // Tanggal pembayaran berikutnya
   overdueCount    Int        @default(0) @map("overdue_count") // Jumlah tunggakan
-  lateFeeAmount   Decimal    @default(0) @map("late_fee_amount") @db.Decimal(15, 2) // Denda keterlambatan
+  lateFeeAmount   Int        @default(0) @map("late_fee_amount") // Denda keterlambatan
 
   creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -353,15 +353,15 @@ model LoanReference {
 
 model LoanBalance {
   id                 String    @id @default(uuid()) @map("id") @db.VarChar(56)
-  principalRemaining Decimal   @map("principal_remaining") @db.Decimal(15, 2) // Sisa pokok pinjaman
-  interestRemaining  Decimal   @map("interest_remaining") @db.Decimal(15, 2) // Sisa bunga
-  totalRemaining     Decimal   @map("total_remaining") @db.Decimal(15, 2) // Total sisa pinjaman
-  principalPaid      Decimal   @map("principal_paid") @db.Decimal(15, 2) // Pokok yang sudah dibayar
-  interestPaid       Decimal   @map("interest_paid") @db.Decimal(15, 2) // Bunga yang sudah dibayar
-  totalPaid          Decimal   @map("total_paid") @db.Decimal(15, 2) // Total yang sudah dibayar
-  lateFeeTotal       Decimal   @default(0) @map("late_fee_total") @db.Decimal(15, 2) // Total denda
+  principalRemaining Int       @map("principal_remaining") // Sisa pokok pinjaman
+  interestRemaining  Int       @map("interest_remaining") // Sisa bunga
+  totalRemaining     Int       @map("total_remaining") // Total sisa pinjaman
+  principalPaid      Int       @map("principal_paid") // Pokok yang sudah dibayar
+  interestPaid       Int       @map("interest_paid") // Bunga yang sudah dibayar
+  totalPaid          Int       @map("total_paid") // Total yang sudah dibayar
+  lateFeeTotal       Int       @default(0) @map("late_fee_total") // Total denda
   lastPaymentDate    DateTime? @map("last_payment_date") @db.Date // Tanggal pembayaran terakhir
-  lastPaymentAmount  Decimal   @default(0) @map("last_payment_amount") @db.Decimal(15, 2) // Jumlah pembayaran terakhir
+  lastPaymentAmount  Int       @default(0) @map("last_payment_amount") // Jumlah pembayaran terakhir
 
   loanReferenceId String        @unique @map("loan_reference_id") @db.VarChar(56)
   loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -385,11 +385,11 @@ model PaymentRecord {
   installmentNumber Int           @map("installment_number") // Angsuran ke-
   dueDate           DateTime      @map("due_date") @db.Date // Tanggal jatuh tempo
   paymentDate       DateTime?     @map("payment_date") @db.Date // Tanggal pembayaran
-  scheduledAmount   Decimal       @map("scheduled_amount") @db.Decimal(15, 2) // Jumlah terjadwal
-  paidAmount        Decimal       @default(0) @map("paid_amount") @db.Decimal(15, 2) // Jumlah yang dibayar
-  principalAmount   Decimal       @map("principal_amount") @db.Decimal(15, 2) // Jumlah pokok
-  interestAmount    Decimal       @map("interest_amount") @db.Decimal(15, 2) // Jumlah bunga
-  lateFeeAmount     Decimal       @default(0) @map("late_fee_amount") @db.Decimal(15, 2) // Denda keterlambatan
+  scheduledAmount   Int           @map("scheduled_amount") // Jumlah terjadwal
+  paidAmount        Int           @default(0) @map("paid_amount") // Jumlah yang dibayar
+  principalAmount   Int           @map("principal_amount") // Jumlah pokok
+  interestAmount    Int           @map("interest_amount") // Jumlah bunga
+  lateFeeAmount     Int           @default(0) @map("late_fee_amount") // Denda keterlambatan
   status            PaymentStatus @default(PENDING) @map("status") // Status pembayaran
   daysOverdue       Int           @default(0) @map("days_overdue") // Hari keterlambatan
 
