@@ -343,7 +343,6 @@ model LoanReference {
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   loanBalance    LoanBalance? // Saldo pinjaman
-  transactions   Transaction[] // Transaksi pembayaran
   paymentRecords PaymentRecord[] // Riwayat pembayaran
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -371,46 +370,6 @@ model LoanBalance {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("loan_balances")
-}
-
-enum TransactionType {
-  PAYMENT       @map("payment") // Pembayaran
-  LATE_FEE      @map("late_fee") // Denda
-  EARLY_PAYMENT @map("early_payment") // Pelunasan dipercepat
-  REFUND        @map("refund") // Pengembalian
-
-  @@map("transaction_type")
-}
-
-enum PaymentMethod {
-  CASH          @map("cash") // Tunai
-  BANK_TRANSFER @map("bank_transfer") // Transfer bank
-  DEBIT_CARD    @map("debit_card") // Kartu debit
-  VIRTUAL_ACC   @map("virtual_account") // Virtual account
-  E_WALLET      @map("e_wallet") // E-wallet
-
-  @@map("payment_method")
-}
-
-model Transaction {
-  id                String          @id @default(uuid()) @map("id") @db.VarChar(56)
-  transactionNumber String          @unique @map("transaction_number") @db.VarChar(50) // Nomor transaksi
-  transactionType   TransactionType @map("transaction_type") // Jenis transaksi
-  paymentMethod     PaymentMethod   @map("payment_method") // Metode pembayaran
-  amount            Decimal         @map("amount") @db.Decimal(15, 2) // Jumlah transaksi
-  principalAmount   Decimal         @map("principal_amount") @db.Decimal(15, 2) // Jumlah pokok
-  interestAmount    Decimal         @map("interest_amount") @db.Decimal(15, 2) // Jumlah bunga
-  lateFeeAmount     Decimal         @default(0) @map("late_fee_amount") @db.Decimal(15, 2) // Jumlah denda
-  transactionDate   DateTime        @default(now()) @map("transaction_date") // Tanggal transaksi
-  notes             String?         @map("notes") @db.Text // Catatan
-
-  loanReferenceId String        @map("loan_reference_id") @db.VarChar(56)
-  loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("transactions")
 }
 
 enum PaymentStatus {
