@@ -109,7 +109,7 @@ model Customer {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   document           Document? // Dokumen-dokumen Customer
-  bankAccount        BankAccount?
+  bankAccounts       BankAccount[]
   creditApplications CreditApplication[] // Pengajuan kredit
   guarantors         Guarantor[] // Guarantor sebagai penjamin 
 
@@ -120,16 +120,20 @@ model Customer {
 }
 
 model BankAccount {
-  id            String @id @default(uuid()) @map("id") @db.VarChar(56)
-  accountNumber String @map("account_number")
+  id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
+  accountName   String  @map("account_name") // nama pemilik rekening
+  accountNumber String  @map("account_number")
+  isPrimary     Boolean @default(false) @map("is_primary")
+  isVerified    Boolean @default(false) @map("is_verified")
+  isActive      Boolean @default(true) @map("is_active")
 
-  customerId String   @unique @map("customer_id")
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId         String              @map("customer_id")
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  creditApplications CreditApplication[] // Pengajuan kredit
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([id], name: "idx_bank_account_id")
   @@map("bank_accounts")
 }
 
@@ -189,7 +193,7 @@ model CreditApplication {
   collateralCert    String?           @map("collateral_cert") // Sertifikat agunan
   collateralValue   Int?              @map("collateral_value") // Nilai agunan (jika ada)
   monthlyIncome     Int               @map("monthly_income") // Pendapatan per bulan
-  incomeProof       String?           @map("income_proof") // Bukti pembayaran
+  incomeProof       String?           @map("income_proof") // Bukti pendapatan
   monthlyExpenses   Int               @map("monthly_expenses") // Pengeluaran per bulan
   surplus           Int               @map("surplus") // Surplus (pendapatan - pengeluaran) per bulan
   status            ApplicationStatus @default(DRAFT) @map("status") // Status pengajuan
@@ -207,6 +211,8 @@ model CreditApplication {
   customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   guarantorId      String            @map("guarantor_id") @db.VarChar(56) // Relasi opsional dengan Guarantor
   guarantor        Guarantor         @relation(fields: [guarantorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bankAccountId    String            @db.VarChar(56)
+  bankAccount      BankAccount       @relation(fields: [bankAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   loanReference    LoanReference? // Referensi pinjaman jika disetujui
   creditWorthiness CreditWorthiness? // Penilaian kelayakan kredit
 
@@ -303,7 +309,14 @@ model PaymentRecord {
 }
 
 model Report {
-  id String @id @default(uuid()) @map("id") @db.VarChar(56)
+  id          String     @id @default(uuid()) @map("id") @db.VarChar(56)
+  reportType  ReportType @map("report_type") // Jenis laporan
+  title       String     @map("title") @db.VarChar(255) // Judul laporan
+  description String?    @map("description") @db.Text // Deskripsi laporan
+  startDate   DateTime   @map("start_date") @db.Date // Tanggal mulai periode laporan
+  endDate     DateTime   @map("end_date") @db.Date // Tanggal akhir periode laporan
+  fileUrl     String?    @map("file_url") // URL file laporan yang digenerate
+  generatedBy String     @map("generated_by") @db.VarChar(56) // ID user yang membuat laporan
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

@@ -128,3 +128,14 @@ enum PaymentStatus {
 
     @@map("payment_status")
 }
+
+enum ReportType {
+    DAILY     @map("daily") // Laporan harian
+    WEEKLY    @map("weekly") // Laporan mingguan
+    MONTHLY   @map("monthly") // Laporan bulanan
+    QUARTERLY @map("quarterly") // Laporan triwulan
+    YEARLY    @map("yearly") // Laporan tahunan
+    CUSTOM    @map("custom") // Rentang tanggal khusus
+
+    @@map("report_type")
+}

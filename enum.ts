@@ -12,7 +12,12 @@ import {
 	CreditScore,
 	LoanStatus,
 	PaymentStatus,
+	ReportType,
 } from './generated/prisma/enums.js';
+
+const enumToObject = <T extends Record<string, string | number>>(e: T) => {
+	return Object.values(e) as [T[keyof T], ...T[keyof T][]];
+};
 
 export const loginProvider = Object.values(LoginProvider) as [
 	LoginProvider,
@@ -24,41 +29,13 @@ export const theme = Object.values(Theme) as [Theme, ...Theme[]];
 
 export const language = Object.values(Language) as [Language, ...Language[]];
 
-export const gender = Object.values(Gender) as [Gender, ...Gender[]];
-
-export const maritalStatus = Object.values(MaritalStatus) as [
-	MaritalStatus,
-	...MaritalStatus[],
-];
-
-export const employmentType = Object.values(EmploymentType) as [
-	EmploymentType,
-	...EmploymentType[],
-];
-
-export const relationship = Object.values(Relationship) as [
-	Relationship,
-	...Relationship[],
-];
-
-export const loanType = Object.values(LoanType) as [LoanType, ...LoanType[]];
-
-export const applicationStatus = Object.values(ApplicationStatus) as [
-	ApplicationStatus,
-	...ApplicationStatus[],
-];
-
-export const creditScore = Object.values(CreditScore) as [
-	CreditScore,
-	...CreditScore[],
-];
-
-export const loanStatus = Object.values(LoanStatus) as [
-	LoanStatus,
-	...LoanStatus[],
-];
-
-export const paymentStatus = Object.values(PaymentStatus) as [
-	PaymentStatus,
-	...PaymentStatus[],
-];
+export const gender = enumToObject(Gender);
+export const maritalStatus = enumToObject(MaritalStatus);
+export const employmentType = enumToObject(EmploymentType);
+export const relationship = enumToObject(Relationship);
+export const loanType = enumToObject(LoanType);
+export const applicationStatus = enumToObject(ApplicationStatus);
+export const creditScore = enumToObject(CreditScore);
+export const loanStatus = enumToObject(LoanStatus);
+export const paymentStatus = enumToObject(PaymentStatus);
+export const reportType = enumToObject(ReportType);
