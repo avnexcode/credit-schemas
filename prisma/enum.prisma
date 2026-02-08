@@ -1,0 +1,130 @@
+enum LoginProvider {
+    EMAIL  @map("email")
+    GOOGLE @map("google")
+
+    @@map("login_provider")
+}
+
+enum UserRole {
+    ADMIN    @map("admin")
+    CUSTOMER @map("customer")
+
+    @@map("user_role")
+}
+
+enum Theme {
+    LIGHT  @map("light")
+    DARK   @map("dark")
+    SYSTEM @map("system")
+
+    @@map("theme")
+}
+
+enum Language {
+    EN @map("en")
+    ID @map("id")
+
+    @@map("language")
+}
+
+enum Gender {
+    MALE   @map("male")
+    FEMALE @map("female")
+
+    @@map("gender")
+}
+
+enum MaritalStatus {
+    SINGLE   @map("single")
+    MARRIED  @map("married")
+    DIVORCED @map("divorced")
+    WIDOWED  @map("widowed")
+
+    @@map("marital_status")
+}
+
+enum EmploymentType {
+    CIVIL_SERVANT        @map("civil_servant") // Pegawai Negeri Sipil (PNS)
+    PRIVATE_EMPLOYEE     @map("private_employee") // Karyawan swasta
+    STATE_OWNED_EMPLOYEE @map("state_owned_employee") // Pegawai BUMN
+    CONTRACT_EMPLOYEE    @map("contract_employee") // Karyawan kontrak
+    FREELANCER           @map("freelancer") // Pekerja lepas
+    ENTREPRENEUR         @map("entrepreneur") // Wiraswasta
+    BUSINESS_OWNER       @map("business_owner") // Pemilik usaha
+    FARMER               @map("farmer") // Petani
+    FISHERMAN            @map("fisherman") // Nelayan
+    LABORER              @map("laborer") // Buruh
+    TEACHER              @map("teacher") // Guru
+    LECTURER             @map("lecturer") // Dosen
+    HEALTH_WORKER        @map("health_worker") // Tenaga kesehatan
+    STUDENT              @map("student") // Pelajar atau mahasiswa
+    HOMEMAKER            @map("homemaker") // Ibu rumah tangga
+    RETIRED              @map("retired") // Pensiunan
+    UNEMPLOYED           @map("unemployed") // Tidak bekerja
+
+    @@map("employment_type")
+}
+
+enum Relationship {
+    FATHER      @map("father") // Ayah
+    MOTHER      @map("mother") // Ibu
+    HUSBAND     @map("husband") // Suami
+    WIFE        @map("wife") // Istri
+    CHILD       @map("child") // Anak
+    SIBLING     @map("sibling") // Saudara kandung
+    GRANDFATHER @map("grandfather") // Kakek
+    GRANDMOTHER @map("grandmother") // Nenek
+    UNCLE       @map("uncle") // Paman
+    AUNT        @map("aunt") // Bibi
+    COUSIN      @map("cousin") // Sepupu
+    GUARDIAN    @map("guardian") // Wali
+    OTHER       @map("other") // Lainnya
+
+    @@map("relationship")
+}
+
+enum LoanType {
+    PERSONAL     @map("personal") // Kredit tanpa agunan
+    MORTGAGE     @map("mortgage") // KPR
+    VEHICLE      @map("vehicle") // Kredit kendaraan
+    BUSINESS     @map("business") // Kredit usaha
+    MULTIPURPOSE @map("multipurpose") // Kredit multiguna
+
+    @@map("loan_type")
+}
+
+enum ApplicationStatus {
+    DRAFT     @map("draft") // Draft
+    SUBMITTED @map("submitted") // Diajukan
+    REVIEWING @map("reviewing") // Sedang ditinjau
+    APPROVED  @map("approved") // Disetujui
+    REJECTED  @map("rejected") // Ditolak
+    DISBURSED @map("disbursed") // Dicairkan
+    CANCELLED @map("cancelled") // Dibatalkan
+
+    @@map("application_status")
+}
+
+enum CreditScore {
+    ELIGIBLE     @map("eligible") // layak
+    NOT_ELIGIBLE @map("not_eligible") // tidak layak
+
+    @@map("credit_score")
+}
+
+enum LoanStatus {
+    ACTIVE    @map("active") // Aktif
+    COMPLETED @map("completed") // Lunas
+    OVERDUE   @map("overdue") // Menunggak
+    DEFAULT   @map("default") // Macet
+
+    @@map("loan_status")
+}
+
+enum PaymentStatus {
+    ON_TIME @map("on_time") // Tepat waktu
+    LATE    @map("late") // Terlambat
+    PENDING @map("pending") // Menunggu
+
+    @@map("payment_status")
+}

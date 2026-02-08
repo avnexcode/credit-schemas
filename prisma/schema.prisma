@@ -1,3 +1,4 @@
+// TODO - Logika penilaian taksiran jaminan
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -5,20 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-enum LoginProvider {
-  EMAIL  @map("email")
-  GOOGLE @map("google")
-
-  @@map("login_provider")
-}
-
-enum UserRole {
-  ADMIN    @map("admin")
-  CUSTOMER @map("customer")
-
-  @@map("user_role")
 }
 
 model User {
@@ -51,37 +38,10 @@ model User {
   @@map("users")
 }
 
-enum Theme {
-  LIGHT  @map("light")
-  DARK   @map("dark")
-  SYSTEM @map("system")
-
-  @@map("theme")
-}
-
-enum Language {
-  EN @map("en")
-  ID @map("id")
-  KR @map("kr")
-  JP @map("jp")
-
-  @@map("language")
-}
-
-enum Currency {
-  IDR @map("id-ID")
-  USD @map("en-US")
-  JPY @map("ja-JP")
-  KRW @map("ko-KR")
-
-  @@map("currency")
-}
-
 model Settings {
   id           String   @id @default(uuid()) @map("id") @db.VarChar(56)
   theme        Theme    @default(SYSTEM) @map("theme")
   language     Language @default(ID) @map("language")
-  currency     Currency @default(IDR) @map("currency")
   notification Boolean  @default(true) @map("notification")
 
   userId String @unique @map("user_id") @db.VarChar(56)
@@ -93,7 +53,6 @@ model Settings {
   @@index([id], name: "idx_settings_id")
   @@index([theme], name: "idx_settings_theme")
   @@index([language], name: "idx_settings_language")
-  @@index([currency], name: "idx_settings_currency")
   @@index([notification], name: "idx_settings_notification")
   @@index([userId], name: "idx_settings_user_id")
   @@index([createdAt], name: "idx_settings_created_at")
@@ -131,36 +90,10 @@ model Notification {
   @@map("notifications")
 }
 
-enum Gender {
-  MALE   @map("male")
-  FEMALE @map("female")
-
-  @@map("gender")
-}
-
-enum MaritalStatus {
-  SINGLE   @map("single")
-  MARRIED  @map("married")
-  DIVORCED @map("divorced")
-  WIDOWED  @map("widowed")
-
-  @@map("marital_status")
-}
-
-enum EmploymentType {
-  PERMANENT  @map("permanent")
-  CONTRACT   @map("contract")
-  FREELANCE  @map("freelance")
-  BUSINESS   @map("business")
-  UNEMPLOYED @map("unemployed")
-
-  @@map("employment_type")
-}
-
 model Customer {
   id               String         @id @default(uuid()) @map("id") @db.VarChar(56)
   fullName         String         @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
-  identityNumber   String         @unique @map("identity_number") @db.VarChar(20) // NIK/KTP
+  nationalId       String         @unique @map("national_id") @db.VarChar(20) // NIK/KTP
   birthPlace       String         @map("birth_place") @db.VarChar(100) // Tempat lahir
   birthDate        DateTime       @map("birth_date") @db.Date // Tanggal lahir
   gender           Gender         @map("gender") // Jenis kelamin
@@ -176,8 +109,9 @@ model Customer {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   document           Document? // Dokumen-dokumen Customer
+  bankAccount        BankAccount?
   creditApplications CreditApplication[] // Pengajuan kredit
-  guarantors         Guarantor[] // Customer sebagai penjamin orang lain
+  guarantors         Guarantor[] // Guarantor sebagai penjamin 
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -185,16 +119,35 @@ model Customer {
   @@map("customers")
 }
 
+model BankAccount {
+  id            String @id @default(uuid()) @map("id") @db.VarChar(56)
+  accountNumber String @map("account_number")
+
+  customerId String   @unique @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([id], name: "idx_bank_account_id")
+  @@map("bank_accounts")
+}
+
 model Guarantor {
-  id             String   @id @default(uuid()) @map("id") @db.VarChar(56)
-  fullName       String   @map("full_name") @db.VarChar(150) // Nama lengkap penjamin
-  identityNumber String   @map("identity_number") @db.VarChar(20) // NIK/KTP penjamin
-  birthPlace     String   @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate      DateTime @map("birth_date") @db.Date // Tanggal lahir
-  gender         Gender   @map("gender") // Jenis kelamin
-  address        String   @map("address") @db.Text // Alamat lengkap
-  phone          String   @map("phone") @db.VarChar(20) // Nomor telepon
-  relationship   String   @map("relationship") @db.VarChar(50) // Hubungan dengan peminjam
+  id               String         @id @default(uuid()) @map("id") @db.VarChar(56)
+  fullName         String         @map("full_name") @db.VarChar(150) // Nama lengkap penjamin
+  nationalId       String         @map("national_id") @db.VarChar(20) // NIK/KTP penjamin
+  birthPlace       String         @map("birth_place") @db.VarChar(100) // Tempat lahir
+  birthDate        DateTime       @map("birth_date") @db.Date // Tanggal lahir
+  gender           Gender         @map("gender") // Jenis kelamin
+  address          String         @map("address") @db.Text // Alamat lengkap
+  phone            String         @map("phone") @db.VarChar(20) // Nomor telepon
+  email            String?        @map("email") @db.VarChar(150) // Email penjamin
+  maritalStatus    MaritalStatus  @map("marital_status") // Status pernikahan
+  employmentType   EmploymentType @map("employment_type") // Jenis pekerjaan
+  employmentName   String?        @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
+  employmentPeriod Int?           @map("employment_period") // Lama bekerja (dalam bulan)
+  relationship     Relationship   @map("relationship") // Hubungan dengan peminjam
 
   customerId String   @map("customer_id") @db.VarChar(56) // Relasi dengan Customer yang dijamin
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -209,14 +162,11 @@ model Guarantor {
 }
 
 model Document {
-  id             String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  IdentityCard   String? @map("identity_card") // Gambar KTP
-  familyCard     String? @map("family_card") // Gambar KK
-  salarySlip     String? @map("salary_slip") // Slip gaji
-  taxReport      String? @map("tax_report") // SPT
-  businessPermit String? @map("business_permit") // SIUP/TDP
-  bankStatement  String? @map("bank_statement") // Rekening koran
-  collateralCert String? @map("collateral_cert") // Sertifikat jaminan
+  id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
+  IdentityCard  String? @map("identity_card") // Gambar KTP
+  familyCard    String? @map("family_card") // Gambar KK
+  salarySlip    String? @map("salary_slip") // Slip gaji
+  bankStatement String? @map("bank_statement") // Rekening koran
 
   customerId  String?    @unique @map("customer_id") @db.VarChar(56) // Relasi opsional dengan Customer
   customer    Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -229,30 +179,6 @@ model Document {
   @@map("documents")
 }
 
-// === LOAN APPLICATION SECTION ===
-
-enum LoanType {
-  PERSONAL     @map("personal") // Kredit tanpa agunan
-  MORTGAGE     @map("mortgage") // KPR
-  VEHICLE      @map("vehicle") // Kredit kendaraan
-  BUSINESS     @map("business") // Kredit usaha
-  MULTIPURPOSE @map("multipurpose") // Kredit multiguna
-
-  @@map("loan_type")
-}
-
-enum ApplicationStatus {
-  DRAFT     @map("draft") // Draft
-  SUBMITTED @map("submitted") // Diajukan
-  REVIEWING @map("reviewing") // Sedang ditinjau
-  APPROVED  @map("approved") // Disetujui
-  REJECTED  @map("rejected") // Ditolak
-  DISBURSED @map("disbursed") // Dicairkan
-  CANCELLED @map("cancelled") // Dibatalkan
-
-  @@map("application_status")
-}
-
 model CreditApplication {
   id                String            @id @default(uuid()) @map("id") @db.VarChar(56)
   applicationNumber String            @unique @map("application_number") @db.VarChar(50) // Nomor pengajuan
@@ -260,9 +186,10 @@ model CreditApplication {
   loanAmount        Int               @map("loan_amount") // Jumlah pinjaman yang diajukan
   loanPeriod        Int               @map("loan_period") // Jangka waktu (bulan)
   loanPurpose       String?           @map("loan_purpose") @db.Text // Tujuan pinjaman
+  collateralCert    String?           @map("collateral_cert") // Sertifikat agunan
   collateralValue   Int?              @map("collateral_value") // Nilai agunan (jika ada)
   monthlyIncome     Int               @map("monthly_income") // Pendapatan per bulan
-  incomeProof       String            @map("income_proof") // Bukti pembayaran
+  incomeProof       String?           @map("income_proof") // Bukti pembayaran
   monthlyExpenses   Int               @map("monthly_expenses") // Pengeluaran per bulan
   surplus           Int               @map("surplus") // Surplus (pendapatan - pengeluaran) per bulan
   status            ApplicationStatus @default(DRAFT) @map("status") // Status pengajuan
@@ -273,6 +200,7 @@ model CreditApplication {
   rejectionReason   String?           @map("rejection_reason") @db.Text // Alasan penolakan
   disbursedAt       DateTime?         @map("disbursed_at") // Tanggal pencairan
   reviewedBy        String?           @map("reviewed_by") @db.VarChar(56) // ID admin yang meninjau
+  approvedBy        String?           @map("approved_by") @db.VarChar(56) // ID admin yang menyetujui
   notes             String?           @map("notes") @db.Text // Catatan tambahan
 
   customerId       String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
@@ -288,20 +216,9 @@ model CreditApplication {
   @@map("credit_applications")
 }
 
-enum CreditScore {
-  EXCELLENT @map("excellent") // 750+
-  GOOD      @map("good") // 650-749
-  FAIR      @map("fair") // 550-649
-  POOR      @map("poor") // 450-549
-  BAD       @map("bad") // <450
-
-  @@map("credit_score")
-}
-
 model CreditWorthiness {
   id               String      @id @default(uuid()) @map("id") @db.VarChar(56)
   creditScore      CreditScore @map("credit_score") // Skor kredit
-  scoreValue       Int         @map("score_value") // Nilai skor numerik
   assessmentResult String      @map("assessment_result") @db.Text // Hasil penilaian
   assessedBy       String      @map("assessed_by") @db.VarChar(56) // ID admin yang menilai
   assessedAt       DateTime    @default(now()) @map("assessed_at") // Tanggal penilaian
@@ -313,15 +230,6 @@ model CreditWorthiness {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("credit_worthinesses")
-}
-
-enum LoanStatus {
-  ACTIVE    @map("active") // Aktif
-  COMPLETED @map("completed") // Lunas
-  OVERDUE   @map("overdue") // Menunggak
-  DEFAULT   @map("default") // Macet
-
-  @@map("loan_status")
 }
 
 model LoanReference {
@@ -372,14 +280,6 @@ model LoanBalance {
   @@map("loan_balances")
 }
 
-enum PaymentStatus {
-  ON_TIME @map("on_time") // Tepat waktu
-  LATE    @map("late") // Terlambat
-  PENDING @map("pending") // Menunggu
-
-  @@map("payment_status")
-}
-
 model PaymentRecord {
   id                String        @id @default(uuid()) @map("id") @db.VarChar(56)
   installmentNumber Int           @map("installment_number") // Angsuran ke-
@@ -408,6 +308,5 @@ model Report {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([id], name: "idx_report_id")
   @@map("reports")
 }
