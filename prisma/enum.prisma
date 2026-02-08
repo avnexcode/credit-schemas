@@ -139,3 +139,15 @@ enum ReportType {
 
     @@map("report_type")
 }
+
+enum NotificationType {
+    SYSTEM   @map("system") // Notifikasi untuk semua admin
+    PERSONAL @map("persoanl") // Notifikasi untuk user tertentu (customer)
+}
+
+enum Priority {
+    LOW    @map("low")
+    NORMAL @map("normal")
+    HIGH   @map("high")
+    URGENT @map("urgent")
+}

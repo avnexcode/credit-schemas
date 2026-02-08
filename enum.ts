@@ -15,8 +15,8 @@ import {
 	ReportType,
 } from './generated/prisma/enums.js';
 
-const enumToObject = <T extends Record<string, string | number>>(e: T) => {
-	return Object.values(e) as [T[keyof T], ...T[keyof T][]];
+const enumToObject = <T extends Record<string, string | number>>(model: T) => {
+	return Object.values(model) as [T[keyof T], ...T[keyof T][]];
 };
 
 export const loginProvider = Object.values(LoginProvider) as [
