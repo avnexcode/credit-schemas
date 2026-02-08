@@ -28,17 +28,17 @@ enum Language {
 }
 
 enum Gender {
-    MALE   @map("male")
-    FEMALE @map("female")
+    MALE   @map("male") // Laki-laki
+    FEMALE @map("female") // Perempuan
 
     @@map("gender")
 }
 
 enum MaritalStatus {
-    SINGLE   @map("single")
-    MARRIED  @map("married")
-    DIVORCED @map("divorced")
-    WIDOWED  @map("widowed")
+    SINGLE   @map("single") // Belum menikah
+    MARRIED  @map("married") // Menikah
+    DIVORCED @map("divorced") // Cerai
+    WIDOWED  @map("widowed") // Janda/Duda
 
     @@map("marital_status")
 }
@@ -142,12 +142,16 @@ enum ReportType {
 
 enum NotificationType {
     SYSTEM   @map("system") // Notifikasi untuk semua admin
-    PERSONAL @map("persoanl") // Notifikasi untuk user tertentu (customer)
+    PERSONAL @map("personal") // Notifikasi untuk user tertentu (customer)
+
+    @@map("notification_type")
 }
 
 enum Priority {
-    LOW    @map("low")
-    NORMAL @map("normal")
-    HIGH   @map("high")
-    URGENT @map("urgent")
+    LOW    @map("low") // Prioritas rendah
+    NORMAL @map("normal") // Prioritas normal
+    HIGH   @map("high") // Prioritas tinggi
+    URGENT @map("urgent") // Prioritas mendesak
+
+    @@map("priority")
 }
