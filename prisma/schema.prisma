@@ -89,10 +89,10 @@ model Notification {
   priority    Priority         @default(NORMAL) @map("priority") // Prioritas notifikasi
   isRead      Boolean          @default(false) @map("is_read") // Status sudah dibaca
   readAt      DateTime?        @map("read_at") // Tanggal dibaca
-  relatedId   String?          @map("related_id") @db.VarChar(56) // ID terkait (loan_id, payment_id, dll)
   relatedType String?          @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
 
-  userId String? @map("user_id") @db.VarChar(56) // Null jika notifikasi sistem, berisi user_id jika personal
+  relatedId String? @map("related_id") @db.VarChar(56) // ID terkait (loan_id, payment_id, dll)
+  userId    String? @map("user_id") @db.VarChar(56) // Null jika notifikasi sistem, berisi user_id jika personal
   // Tidak ada relasi langsung ke User untuk fleksibilitas
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -121,8 +121,9 @@ model Customer {
 
   document           Document? // Dokumen-dokumen Customer
   bankAccounts       BankAccount[]
-  creditApplications CreditApplication[] // Pengajuan kredit
   guarantors         Guarantor[] // Guarantor sebagai penjamin 
+  creditApplications CreditApplication[] // Pengajuan kredit
+  loanReferences     LoanReference[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -178,7 +179,7 @@ model Guarantor {
 
 model Document {
   id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  IdentityCard  String? @map("identity_card") // Gambar KTP
+  identityCard  String? @map("identity_card") // Gambar KTP
   familyCard    String? @map("family_card") // Gambar KK
   salarySlip    String? @map("salary_slip") // Slip gaji
   bankStatement String? @map("bank_statement") // Rekening koran
@@ -265,11 +266,12 @@ model LoanReference {
   overdueCount    Int        @default(0) @map("overdue_count") // Jumlah tunggakan
   lateFeeAmount   Int        @default(0) @map("late_fee_amount") // Denda keterlambatan
 
+  customerId          String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
+  customer            Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  loanBalance    LoanBalance? // Saldo pinjaman
-  paymentRecords PaymentRecord[] // Riwayat pembayaran
+  loanBalance         LoanBalance? // Saldo pinjaman
+  paymentRecords      PaymentRecord[] // Riwayat pembayaran
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -303,10 +305,10 @@ model PaymentRecord {
   installmentNumber Int           @map("installment_number") // Angsuran ke-
   dueDate           DateTime      @map("due_date") @db.Date // Tanggal jatuh tempo
   paymentDate       DateTime?     @map("payment_date") @db.Date // Tanggal pembayaran
-  scheduledAmount   Int           @map("scheduled_amount") // Jumlah terjadwal
-  paidAmount        Int           @default(0) @map("paid_amount") // Jumlah yang dibayar
+  totalAmount       Int           @map("total_amount") // Jumlah keseluruhan
   principalAmount   Int           @map("principal_amount") // Jumlah pokok
   interestAmount    Int           @map("interest_amount") // Jumlah bunga
+  paidAmount        Int           @default(0) @map("paid_amount") // Jumlah yang dibayar
   lateFeeAmount     Int           @default(0) @map("late_fee_amount") // Denda keterlambatan
   status            PaymentStatus @default(PENDING) @map("status") // Status pembayaran
   daysOverdue       Int           @default(0) @map("days_overdue") // Hari keterlambatan
