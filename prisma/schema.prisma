@@ -79,17 +79,17 @@ model Permissions {
 }
 
 model Notification {
-  id          String           @id @default(uuid()) @map("id") @db.VarChar(56)
-  type        NotificationType @map("type") // Tipe notifikasi (SYSTEM atau PERSONAL)
-  category    String           @map("category") @db.VarChar(100) // Kategori notifikasi (LOAN_APPROVED, PAYMENT_DUE, dll)
-  title       String           @map("title") @db.VarChar(150) // Judul notifikasi
-  message     String           @map("message") @db.Text // Isi pesan notifikasi
-  actionUrl   String?          @map("action_url") @db.VarChar(255) // URL untuk action button (opsional)
-  actionLabel String?          @map("action_label") @db.VarChar(50) // Label untuk action button (opsional)
-  priority    Priority         @default(NORMAL) @map("priority") // Prioritas notifikasi
-  isRead      Boolean          @default(false) @map("is_read") // Status sudah dibaca
-  readAt      DateTime?        @map("read_at") // Tanggal dibaca
-  relatedType String?          @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
+  id          String               @id @default(uuid()) @map("id") @db.VarChar(56)
+  type        NotificationType     @map("type") // Tipe notifikasi (SYSTEM atau PERSONAL)
+  category    String               @map("category") @db.VarChar(100) // Kategori notifikasi (LOAN_APPROVED, PAYMENT_DUE, dll)
+  title       String               @map("title") @db.VarChar(150) // Judul notifikasi
+  message     String               @map("message") @db.Text // Isi pesan notifikasi
+  actionUrl   String?              @map("action_url") @db.VarChar(255) // URL untuk action button (opsional)
+  actionLabel String?              @map("action_label") @db.VarChar(50) // Label untuk action button (opsional)
+  priority    NotificationPriority @default(NORMAL) @map("priority") // Prioritas notifikasi
+  isRead      Boolean              @default(false) @map("is_read") // Status sudah dibaca
+  readAt      DateTime?            @map("read_at") // Tanggal dibaca
+  relatedType String?              @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
 
   relatedId String? @map("related_id") @db.VarChar(56) // ID terkait (loan_id, payment_id, dll)
   userId    String? @map("user_id") @db.VarChar(56) // Null jika notifikasi sistem, berisi user_id jika personal
@@ -295,6 +295,7 @@ model CreditApplication {
   bankAccount      BankAccount       @relation(fields: [bankAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   loanReference    LoanReference? // Referensi pinjaman jika disetujui
   creditWorthiness CreditWorthiness? // Penilaian kelayakan kredit
+  interviewAnswers InterviewAnswer[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -351,6 +352,61 @@ model CreditWorthiness {
   @@index([createdAt], name: "idx_credit_worthiness_created_at")
   @@index([updatedAt], name: "idx_credit_worthiness_updated_at")
   @@map("credit_worthinesses")
+}
+
+model InterviewQuestion {
+  id           String            @id @default(uuid()) @map("id") @db.VarChar(56)
+  questionText String            @map("question_text") @db.VarChar(255)
+  questionType QuestionType      @map("question_type")
+  category     QuestionCategory? @map("category")
+  isRequired   Boolean           @default(true) @map("is_required")
+  isActive     Boolean           @default(true) @map("is_active")
+  orderNumber  Int               @map("order_number") // untuk mengurutkan pertanyaan
+  options      String[]          @map("options") // untuk multiple choice options
+  placeholder  String?           @map("placeholder") @db.VarChar(255)
+  createdBy    String            @map("created_by") @db.VarChar(56)
+  updatedBy    String            @map("updated_by") @db.VarChar(56)
+
+  interviewAnswers InterviewAnswer[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([id], name: "idx_interview_questions_id")
+  @@index([questionText], name: "idx_interview_questions_question_text")
+  @@index([questionType], name: "idx_interview_questions_question_type")
+  @@index([category], name: "idx_interview_questions_category")
+  @@index([isRequired], name: "idx_interview_questions_is_required")
+  @@index([isActive], name: "idx_interview_questions_is_active")
+  @@index([orderNumber], name: "idx_interview_questions_order_number")
+  @@index([options], name: "idx_interview_questions_options")
+  @@index([placeholder], name: "idx_interview_questions_placeholder")
+  @@index([createdBy], name: "idx_interview_questions_created_by")
+  @@index([updatedBy], name: "idx_interview_questions_updated_by")
+  @@index([createdAt], name: "idx_interview_questions_created_at")
+  @@index([updatedAt], name: "idx_interview_questions_updated_at")
+  @@map("interview_questions")
+}
+
+model InterviewAnswer {
+  id         String @id @default(uuid()) @map("id") @db.VarChar(56)
+  answerText String @db.VarChar(255)
+
+  creditApplicationId String            @map("credit_application_id") @db.VarChar(56)
+  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  interviewQuestionId String            @map("interview_question_id") @db.VarChar(56)
+  interviewQuestion   InterviewQuestion @relation(fields: [interviewQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([id], name: "idx_interview_answers_id")
+  @@index([answerText], name: "idx_interview_answers_answer_text")
+  @@index([creditApplicationId], name: "idx_interview_answers_credit_application_id")
+  @@index([interviewQuestionId], name: "idx_interview_answers_interview_question_id")
+  @@index([createdAt], name: "idx_interview_answers_created_at")
+  @@index([updatedAt], name: "idx_interview_answers_updated_at")
+  @@map("interview_answers")
 }
 
 model LoanReference {

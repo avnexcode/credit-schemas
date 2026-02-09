@@ -1,18 +1,22 @@
 import {
-	LoginProvider,
-	UserRole,
-	Theme,
-	Language,
-	Gender,
-	MaritalStatus,
-	EmploymentType,
-	Relationship,
-	LoanType,
 	ApplicationStatus,
 	CreditScore,
+	EmploymentType,
+	Gender,
+	Language,
 	LoanStatus,
+	LoanType,
+	LoginProvider,
+	MaritalStatus,
+	NotificationPriority,
+	NotificationType,
 	PaymentStatus,
+	QuestionCategory,
+	QuestionType,
+	Relationship,
 	ReportType,
+	Theme,
+	UserRole,
 } from './generated/prisma/enums.js';
 
 const enumToObject = <T extends Record<string, string | number>>(model: T) => {
@@ -30,12 +34,29 @@ export const theme = Object.values(Theme) as [Theme, ...Theme[]];
 export const language = Object.values(Language) as [Language, ...Language[]];
 
 export const gender = enumToObject(Gender);
+
 export const maritalStatus = enumToObject(MaritalStatus);
+
 export const employmentType = enumToObject(EmploymentType);
+
 export const relationship = enumToObject(Relationship);
+
 export const loanType = enumToObject(LoanType);
+
 export const applicationStatus = enumToObject(ApplicationStatus);
+
 export const creditScore = enumToObject(CreditScore);
+
 export const loanStatus = enumToObject(LoanStatus);
+
 export const paymentStatus = enumToObject(PaymentStatus);
+
 export const reportType = enumToObject(ReportType);
+
+export const notificationType = enumToObject(NotificationType);
+
+export const notificationPriority = enumToObject(NotificationPriority);
+
+export const questionType = enumToObject(QuestionType);
+
+export const questionCategory = enumToObject(QuestionCategory);

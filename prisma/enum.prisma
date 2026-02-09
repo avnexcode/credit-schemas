@@ -147,11 +147,48 @@ enum NotificationType {
     @@map("notification_type")
 }
 
-enum Priority {
+enum NotificationPriority {
     LOW    @map("low") // Prioritas rendah
     NORMAL @map("normal") // Prioritas normal
     HIGH   @map("high") // Prioritas tinggi
     URGENT @map("urgent") // Prioritas mendesak
 
-    @@map("priority")
+    @@map("notification_priority")
+}
+
+enum QuestionType {
+    SINGLE_CHOICE   @map("single_choice") // Pilihan tunggal (radio)
+    MULTIPLE_CHOICE @map("multiple_choice") // Pilihan ganda (checkbox)
+    YES_NO          @map("yes_no") // Ya/Tidak
+    TRUE_FALSE      @map("true_false") // Benar/Salah
+    RATING          @map("rating") // Rating (1-5 stars)
+    SCALE           @map("scale") // Skala (1-10)
+    PERCENTAGE      @map("percentage") // Input persentase
+
+    @@map("question_types")
+}
+
+enum QuestionCategory {
+    PERSONAL       @map("personal") // Data personal
+    IDENTITY       @map("identity") // Identitas (KTP, SIM, dll)
+    CONTACT        @map("contact") // Kontak
+    ADDRESS        @map("address") // Alamat
+    EMPLOYMENT     @map("employment") // Pekerjaan
+    INCOME         @map("income") // Pendapatan
+    EXPENSE        @map("expense") // Pengeluaran
+    FINANCIAL      @map("financial") // Keuangan umum
+    BUSINESS       @map("business") // Bisnis
+    COLLATERAL     @map("collateral") // Jaminan/Agunan
+    REFERENCE      @map("reference") // Referensi
+    EMERGENCY      @map("emergency") // Kontak darurat
+    EDUCATION      @map("education") // Pendidikan
+    FAMILY         @map("family") // Keluarga
+    LOAN_PURPOSE   @map("loan_purpose") // Tujuan pinjaman
+    CREDIT_HISTORY @map("credit_history") // Riwayat kredit
+    ASSETS         @map("assets") // Aset
+    LIABILITIES    @map("liabilities") // Kewajiban/Hutang
+    BANK_ACCOUNT   @map("bank_account") // Rekening bank
+    OTHER          @map("other") // Lainnya
+
+    @@map("question_categories")
 }
