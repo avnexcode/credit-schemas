@@ -22,8 +22,9 @@ model User {
   permissions Permissions?
   customer    Customer? // Relasi one-to-one dengan Customer
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz()
+  notifications Notification[]
 
   @@index([id], name: "idx_user_id")
   @@index([name], name: "idx_user_name")
@@ -42,7 +43,7 @@ model Settings {
   id           String   @id @default(uuid()) @map("id") @db.VarChar(56)
   theme        Theme    @default(SYSTEM) @map("theme")
   language     Language @default(ID) @map("language")
-  notification Boolean  @default(true) @map("notification")
+  notification Boolean  @default(true) @map("notification") @db.Boolean
 
   userId String @unique @map("user_id") @db.VarChar(56)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -62,7 +63,7 @@ model Settings {
 
 model Permissions {
   id           String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  createReport Boolean @default(false) @map("create_report")
+  createReport Boolean @default(false) @map("create_report") @db.Boolean
 
   userId String @unique @map("user_id") @db.VarChar(56)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -87,12 +88,13 @@ model Notification {
   actionUrl   String?              @map("action_url") @db.VarChar(255) // URL untuk action button (opsional)
   actionLabel String?              @map("action_label") @db.VarChar(50) // Label untuk action button (opsional)
   priority    NotificationPriority @default(NORMAL) @map("priority") // Prioritas notifikasi
-  isRead      Boolean              @default(false) @map("is_read") // Status sudah dibaca
+  isRead      Boolean              @default(false) @map("is_read") @db.Boolean // Status sudah dibaca
   readAt      DateTime?            @map("read_at") @db.Timestamptz() // Tanggal dibaca
   relatedType String?              @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
 
   relatedId String? @map("related_id") @db.VarChar(56) // ID terkait (loan_id, payment_id, dll)
   userId    String? @map("user_id") @db.VarChar(56) // Null jika notifikasi sistem, berisi user_id jika personal
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   // Tidak ada relasi langsung ke User untuk fleksibilitas
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
@@ -129,7 +131,7 @@ model Customer {
   maritalStatus    MaritalStatus  @map("marital_status") // Status pernikahan
   employmentType   EmploymentType @map("employment_type") // Jenis pekerjaan
   employmentName   String?        @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
-  employmentPeriod Int?           @map("employment_period") // Lama bekerja (dalam bulan)
+  employmentPeriod Int?           @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
 
   userId String? @unique @map("user_id") @db.VarChar(56) // Relasi dengan User (opsional untuk pengajuan offline)
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -166,9 +168,9 @@ model BankAccount {
   id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
   accountName   String  @map("account_name") @db.VarChar(150) // nama pemilik rekening
   accountNumber String  @map("account_number") @db.VarChar(100)
-  isPrimary     Boolean @default(false) @map("is_primary")
-  isVerified    Boolean @default(false) @map("is_verified")
-  isActive      Boolean @default(true) @map("is_active")
+  isPrimary     Boolean @default(false) @map("is_primary") @db.Boolean
+  isVerified    Boolean @default(false) @map("is_verified") @db.Boolean
+  isActive      Boolean @default(true) @map("is_active") @db.Boolean
 
   customerId         String              @map("customer_id") @db.VarChar(56)
   customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -194,7 +196,7 @@ model Guarantor {
   fullName         String         @map("full_name") @db.VarChar(150) // Nama lengkap penjamin
   nationalId       String         @map("national_id") @db.VarChar(20) // NIK/KTP penjamin
   birthPlace       String         @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate        DateTime       @map("birth_date") @db.Date // Tanggal lahir
+  birthDate        DateTime       @map("birth_date") @db.Timestamptz() // Tanggal lahir
   gender           Gender         @map("gender") // Jenis kelamin
   address          String         @map("address") @db.Text // Alamat lengkap
   phone            String         @map("phone") @db.VarChar(20) // Nomor telepon
@@ -202,7 +204,7 @@ model Guarantor {
   maritalStatus    MaritalStatus  @map("marital_status") // Status pernikahan
   employmentType   EmploymentType @map("employment_type") // Jenis pekerjaan
   employmentName   String?        @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
-  employmentPeriod Int?           @map("employment_period") // Lama bekerja (dalam bulan)
+  employmentPeriod Int?           @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
   relationship     Relationship   @map("relationship") // Hubungan dengan peminjam
 
   customerId String   @map("customer_id") @db.VarChar(56) // Relasi dengan Customer yang dijamin
@@ -264,28 +266,28 @@ model Document {
 }
 
 model CreditApplication {
-  id                String            @id @default(uuid()) @map("id") @db.VarChar(56)
-  applicationNumber String            @unique @map("application_number") @db.VarChar(50) // Nomor pengajuan
-  loanType          LoanType          @map("loan_type") // Jenis pinjaman
-  loanAmount        Int               @map("loan_amount") // Jumlah pinjaman yang diajukan
-  loanPeriod        Int               @map("loan_period") // Jangka waktu (bulan)
-  loanPurpose       String?           @map("loan_purpose") @db.Text // Tujuan pinjaman
-  collateralCert    String?           @map("collateral_cert") // Sertifikat agunan
-  collateralValue   Int?              @map("collateral_value") // Nilai agunan (jika ada)
-  monthlyIncome     Int               @map("monthly_income") // Pendapatan per bulan
-  incomeProof       String?           @map("income_proof") // Bukti pendapatan
-  monthlyExpenses   Int               @map("monthly_expenses") // Pengeluaran per bulan
-  surplus           Int               @map("surplus") // Surplus (pendapatan - pengeluaran) per bulan
-  status            ApplicationStatus @default(DRAFT) @map("status") // Status pengajuan
-  submittedAt       DateTime?         @map("submitted_at") @db.Timestamptz() // Tanggal pengajuan
-  reviewedAt        DateTime?         @map("reviewed_at") @db.Timestamptz() // Tanggal ditinjau
-  approvedAt        DateTime?         @map("approved_at") @db.Timestamptz() // Tanggal disetujui
-  rejectedAt        DateTime?         @map("rejected_at") @db.Timestamptz() // Tanggal ditolak
-  rejectionReason   String?           @map("rejection_reason") @db.Text // Alasan penolakan
-  disbursedAt       DateTime?         @map("disbursed_at") @db.Timestamptz() // Tanggal pencairan
-  reviewedBy        String?           @map("reviewed_by") @db.VarChar(56) // ID admin yang meninjau
-  approvedBy        String?           @map("approved_by") @db.VarChar(56) // ID admin yang menyetujui
-  notes             String?           @map("notes") @db.Text // Catatan tambahan
+  id                    String            @id @default(uuid()) @map("id") @db.VarChar(56)
+  applicationNumber     String            @unique @map("application_number") @db.VarChar(50) // Nomor pengajuan
+  loanType              LoanType          @map("loan_type") // Jenis pinjaman
+  loanAmount            Int               @map("loan_amount") @db.Integer // Jumlah pinjaman yang diajukan
+  loanPeriod            Int               @map("loan_period") @db.Integer // Jangka waktu (bulan)
+  loanPurpose           String?           @map("loan_purpose") @db.Text // Tujuan pinjaman
+  collateralCertificate String?           @map("collateral_certificate") // Sertifikat agunan
+  collateralValue       Int?              @map("collateral_value") // Nilai agunan (jika ada)
+  monthlyIncome         Int               @map("monthly_income") @db.Integer // Pendapatan per bulan
+  incomeProof           String?           @map("income_proof") // Bukti pendapatan
+  monthlyExpenses       Int               @map("monthly_expenses") @db.Integer // Pengeluaran per bulan
+  surplus               Int               @map("surplus") @db.Integer // Surplus (pendapatan - pengeluaran) per bulan
+  status                ApplicationStatus @default(DRAFT) @map("status") // Status pengajuan
+  submittedAt           DateTime?         @map("submitted_at") @db.Timestamptz() // Tanggal pengajuan
+  reviewedAt            DateTime?         @map("reviewed_at") @db.Timestamptz() // Tanggal ditinjau
+  approvedAt            DateTime?         @map("approved_at") @db.Timestamptz() // Tanggal disetujui
+  rejectedAt            DateTime?         @map("rejected_at") @db.Timestamptz() // Tanggal ditolak
+  rejectionReason       String?           @map("rejection_reason") @db.Text // Alasan penolakan
+  disbursedAt           DateTime?         @map("disbursed_at") @db.Timestamptz() // Tanggal pencairan
+  reviewerId            String?           @map("reviewed_by") @db.VarChar(56) // ID admin yang meninjau
+  approverId            String?           @map("approved_by") @db.VarChar(56) // ID admin yang menyetujui
+  notes                 String?           @map("notes") @db.Text // Catatan tambahan
 
   customerId       String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
   customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -306,7 +308,7 @@ model CreditApplication {
   @@index([loanAmount], name: "idx_credit_application_loan_amount")
   @@index([loanPeriod], name: "idx_credit_application_loan_period")
   @@index([loanPurpose], name: "idx_credit_application_loan_purpose")
-  @@index([collateralCert], name: "idx_credit_application_collateral_cert")
+  @@index([collateralCertificate], name: "idx_credit_application_collateral_cert")
   @@index([collateralValue], name: "idx_credit_application_collateral_value")
   @@index([monthlyIncome], name: "idx_credit_application_monthly_income")
   @@index([incomeProof], name: "idx_credit_application_income_proof")
@@ -319,8 +321,8 @@ model CreditApplication {
   @@index([rejectedAt], name: "idx_credit_application_rejected_at")
   @@index([rejectionReason], name: "idx_credit_application_rejection_reason")
   @@index([disbursedAt], name: "idx_credit_application_disbursed_at")
-  @@index([reviewedBy], name: "idx_credit_application_reviewed_by")
-  @@index([approvedBy], name: "idx_credit_application_approved_by")
+  @@index([reviewerId], name: "idx_credit_application_reviewed_by")
+  @@index([approverId], name: "idx_credit_application_approved_by")
   @@index([notes], name: "idx_credit_application_notes")
   @@index([customerId], name: "idx_credit_application_customer_id")
   @@index([guarantorId], name: "idx_credit_application_guarantor_id")
@@ -335,7 +337,7 @@ model CreditWorthiness {
   creditScore      CreditScore @map("credit_score") // Skor kredit
   assessmentResult String      @map("assessment_result") @db.Text // Hasil penilaian
   assessedBy       String      @map("assessed_by") @db.VarChar(56) // ID admin yang menilai
-  assessedAt       DateTime    @default(now()) @map("assessed_at") // Tanggal penilaian
+  assessedAt       DateTime    @default(now()) @map("assessed_at") @db.Timestamptz() // Tanggal penilaian
 
   creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -351,7 +353,7 @@ model CreditWorthiness {
   @@index([creditApplicationId], name: "idx_credit_worthiness_credit_application_id")
   @@index([createdAt], name: "idx_credit_worthiness_created_at")
   @@index([updatedAt], name: "idx_credit_worthiness_updated_at")
-  @@map("credit_worthinesses")
+  @@map("credit_worthiness")
 }
 
 model InterviewQuestion {
@@ -359,13 +361,14 @@ model InterviewQuestion {
   questionText String            @map("question_text") @db.Text
   questionType QuestionType      @map("question_type")
   category     QuestionCategory? @map("category")
-  isRequired   Boolean           @default(true) @map("is_required")
-  isActive     Boolean           @default(true) @map("is_active")
-  orderNumber  Int               @map("order_number") // untuk mengurutkan pertanyaan
+  isRequired   Boolean           @default(true) @map("is_required") @db.Boolean
+  isActive     Boolean           @default(true) @map("is_active") @db.Boolean
+  orderNumber  Int               @map("order_number") @db.Integer // untuk mengurutkan pertanyaan
   options      String[]          @default([]) @map("options") // untuk multiple choice options
   placeholder  String?           @map("placeholder") @db.VarChar(255)
   createdBy    String            @map("created_by") @db.VarChar(56)
-  updatedBy    String            @map("updated_by") @db.VarChar(56)
+
+  updatedBy String @map("updated_by") @db.VarChar(56)
 
   interviewAnswers InterviewAnswer[]
 
@@ -412,17 +415,17 @@ model InterviewAnswer {
 model LoanReference {
   id              String     @id @default(uuid()) @map("id") @db.VarChar(56)
   loanNumber      String     @unique @map("loan_number") @db.VarChar(50) // Nomor pinjaman
-  principalAmount Int        @map("principal_amount") // Jumlah pokok pinjaman
-  interestRate    Int        @map("interest_rate") // Suku bunga per tahun (%)
-  loanPeriod      Int        @map("loan_period") // Jangka waktu (bulan)
-  monthlyPayment  Int        @map("monthly_payment") // Angsuran per bulan
-  totalPayment    Int        @map("total_payment") // Total pembayaran
+  principalAmount Int        @map("principal_amount") @db.Integer // Jumlah pokok pinjaman
+  interestRate    Int        @map("interest_rate") @db.Integer // Suku bunga per tahun (%)
+  loanPeriod      Int        @map("loan_period") @db.Integer // Jangka waktu (bulan)
+  monthlyPayment  Int        @map("monthly_payment") @db.Integer // Angsuran per bulan
+  totalPayment    Int        @map("total_payment") @db.Integer // Total pembayaran
   status          LoanStatus @default(ACTIVE) @map("status") // Status pinjaman
   startDate       DateTime   @map("start_date") @db.Timestamptz() // Tanggal mulai
   endDate         DateTime   @map("end_date") @db.Timestamptz() // Tanggal jatuh tempo
   nextPaymentDate DateTime   @map("next_payment_date") @db.Timestamptz() // Tanggal pembayaran berikutnya
-  overdueCount    Int        @default(0) @map("overdue_count") // Jumlah tunggakan
-  lateFeeAmount   Int        @default(0) @map("late_fee_amount") // Denda keterlambatan
+  overdueCount    Int        @default(0) @map("overdue_count") @db.Integer // Jumlah tunggakan
+  lateFeeAmount   Int        @default(0) @map("late_fee_amount") @db.Integer // Denda keterlambatan
 
   customerId          String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
   customer            Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -456,15 +459,15 @@ model LoanReference {
 
 model LoanBalance {
   id                 String    @id @default(uuid()) @map("id") @db.VarChar(56)
-  principalRemaining Int       @map("principal_remaining") // Sisa pokok pinjaman
-  interestRemaining  Int       @map("interest_remaining") // Sisa bunga
-  totalRemaining     Int       @map("total_remaining") // Total sisa pinjaman
-  principalPaid      Int       @map("principal_paid") // Pokok yang sudah dibayar
-  interestPaid       Int       @map("interest_paid") // Bunga yang sudah dibayar
-  totalPaid          Int       @map("total_paid") // Total yang sudah dibayar
-  lateFeeTotal       Int       @default(0) @map("late_fee_total") // Total denda
+  principalRemaining Int       @map("principal_remaining") @db.Integer // Sisa pokok pinjaman
+  interestRemaining  Int       @map("interest_remaining") @db.Integer // Sisa bunga
+  totalRemaining     Int       @map("total_remaining") @db.Integer // Total sisa pinjaman
+  principalPaid      Int       @map("principal_paid") @db.Integer // Pokok yang sudah dibayar
+  interestPaid       Int       @map("interest_paid") @db.Integer // Bunga yang sudah dibayar
+  totalPaid          Int       @map("total_paid") @db.Integer // Total yang sudah dibayar
+  lateFeeTotal       Int       @default(0) @map("late_fee_total") @db.Integer // Total denda
   lastPaymentDate    DateTime? @map("last_payment_date") @db.Timestamptz() // Tanggal pembayaran terakhir
-  lastPaymentAmount  Int       @default(0) @map("last_payment_amount") // Jumlah pembayaran terakhir
+  lastPaymentAmount  Int       @default(0) @map("last_payment_amount") @db.Integer // Jumlah pembayaran terakhir
 
   loanReferenceId String        @unique @map("loan_reference_id") @db.VarChar(56)
   loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -490,16 +493,16 @@ model LoanBalance {
 
 model PaymentRecord {
   id                String        @id @default(uuid()) @map("id") @db.VarChar(56)
-  installmentNumber Int           @map("installment_number") // Angsuran ke-
+  installmentNumber Int           @map("installment_number") @db.Integer // Angsuran ke-
   dueDate           DateTime      @map("due_date") @db.Timestamptz() // Tanggal jatuh tempo
   paymentDate       DateTime?     @map("payment_date") @db.Timestamptz() // Tanggal pembayaran
-  totalAmount       Int           @map("total_amount") // Jumlah keseluruhan
-  principalAmount   Int           @map("principal_amount") // Jumlah pokok
-  interestAmount    Int           @map("interest_amount") // Jumlah bunga
-  paidAmount        Int           @default(0) @map("paid_amount") // Jumlah yang dibayar
-  lateFeeAmount     Int           @default(0) @map("late_fee_amount") // Denda keterlambatan
+  totalAmount       Int           @map("total_amount") @db.Integer // Jumlah keseluruhan
+  principalAmount   Int           @map("principal_amount") @db.Integer // Jumlah pokok
+  interestAmount    Int           @map("interest_amount") @db.Integer // Jumlah bunga
+  paidAmount        Int           @default(0) @map("paid_amount") @db.Integer // Jumlah yang dibayar
+  lateFeeAmount     Int           @default(0) @map("late_fee_amount") @db.Integer // Denda keterlambatan
   status            PaymentStatus @default(PENDING) @map("status") // Status pembayaran
-  daysOverdue       Int           @default(0) @map("days_overdue") // Hari keterlambatan
+  daysOverdue       Int           @default(0) @map("days_overdue") @db.Integer // Hari keterlambatan
 
   loanReferenceId String        @map("loan_reference_id") @db.VarChar(56)
   loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)

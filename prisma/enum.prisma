@@ -165,7 +165,7 @@ enum QuestionType {
     SCALE           @map("scale") // Skala (1-10)
     PERCENTAGE      @map("percentage") // Input persentase
 
-    @@map("question_types")
+    @@map("question_type")
 }
 
 enum QuestionCategory {
@@ -190,5 +190,5 @@ enum QuestionCategory {
     BANK_ACCOUNT   @map("bank_account") // Rekening bank
     OTHER          @map("other") // Lainnya
 
-    @@map("question_categories")
+    @@map("question_category")
 }
