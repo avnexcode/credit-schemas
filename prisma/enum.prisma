@@ -142,7 +142,7 @@ enum ReportType {
 
 enum NotificationType {
     SYSTEM   @map("system") // Notifikasi untuk semua admin
-    PERSONAL @map("personal") // Notifikasi untuk user tertentu (customer)
+    PERSONAL @map("personal") // Notifikasi untuk user tertentu
 
     @@map("notification_type")
 }

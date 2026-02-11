@@ -18,13 +18,19 @@ model User {
   image    String?  @map("image")
   role     UserRole @default(ADMIN) @map("role")
 
-  settings    Settings?
-  permissions Permissions?
-  customer    Customer? // Relasi one-to-one dengan Customer
+  settings             Settings?
+  permissions          Permissions?
+  customer             Customer?
+  notifications        Notification[]
+  reports              Report[]
+  reviewedApplications CreditApplication[] @relation("ReviewedApplications")
+  approvedApplications CreditApplication[] @relation("ApprovedApplications")
+  createdQuestions     InterviewQuestion[] @relation("CreatedQuestions")
+  updatedQuestions     InterviewQuestion[] @relation("UpdatedQuestions")
+  creditWorthinesses   CreditWorthiness[]
 
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz()
-  notifications Notification[]
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
 
   @@index([id], name: "idx_user_id")
   @@index([name], name: "idx_user_name")
@@ -92,10 +98,9 @@ model Notification {
   readAt      DateTime?            @map("read_at") @db.Timestamptz() // Tanggal dibaca
   relatedType String?              @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
 
-  relatedId String? @map("related_id") @db.VarChar(56) // ID terkait (loan_id, payment_id, dll)
-  userId    String? @map("user_id") @db.VarChar(56) // Null jika notifikasi sistem, berisi user_id jika personal
+  relatedId String? @map("related_id") @db.VarChar(56)
+  userId    String? @map("user_id") @db.VarChar(56)
   user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  // Tidak ada relasi langsung ke User untuk fleksibilitas
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
@@ -118,24 +123,29 @@ model Notification {
   @@map("notifications")
 }
 
+model Admin {
+  id String @id @default(cuid()) @map("id") @db.VarChar(56)
+
+  @@map("admins")
+}
+
 model Customer {
-  id               String         @id @default(uuid()) @map("id") @db.VarChar(56)
-  fullName         String         @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
-  nationalId       String         @unique @map("national_id") @db.VarChar(20) // NIK/KTP
-  birthPlace       String         @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate        DateTime       @map("birth_date") @db.Timestamptz() // Tanggal lahir
-  gender           Gender         @map("gender") // Jenis kelamin
-  phone            String         @map("phone") @db.VarChar(20) // Nomor telepon
-  email            String?        @map("email") @db.VarChar(150) // Email nasabah
-  address          String         @map("address") @db.Text // Alamat lengkap
-  maritalStatus    MaritalStatus  @map("marital_status") // Status pernikahan
-  employmentType   EmploymentType @map("employment_type") // Jenis pekerjaan
-  employmentName   String?        @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
-  employmentPeriod Int?           @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
+  id               String          @id @default(uuid()) @map("id") @db.VarChar(56)
+  fullName         String          @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
+  nationalId       String?         @unique @map("national_id") @db.VarChar(20) // NIK/KTP
+  birthPlace       String?         @map("birth_place") @db.VarChar(100) // Tempat lahir
+  birthDate        DateTime?       @map("birth_date") @db.Timestamptz() // Tanggal lahir
+  gender           Gender?         @map("gender") // Jenis kelamin
+  phone            String?         @map("phone") @db.VarChar(20) // Nomor telepon
+  email            String?         @map("email") @db.VarChar(150) // Email nasabah
+  address          String?         @map("address") @db.Text // Alamat lengkap
+  maritalStatus    MaritalStatus?  @map("marital_status") // Status pernikahan
+  employmentType   EmploymentType? @map("employment_type") // Jenis pekerjaan
+  employmentName   String?         @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
+  employmentPeriod Int?            @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
 
-  userId String? @unique @map("user_id") @db.VarChar(56) // Relasi dengan User (opsional untuk pengajuan offline)
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-
+  userId             String?             @unique @map("user_id") @db.VarChar(56) // Relasi dengan User (opsional untuk pengajuan offline)
+  user               User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   document           Document? // Dokumen-dokumen Customer
   bankAccounts       BankAccount[]
   guarantors         Guarantor[] // Guarantor sebagai penjamin 
@@ -207,9 +217,8 @@ model Guarantor {
   employmentPeriod Int?           @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
   relationship     Relationship   @map("relationship") // Hubungan dengan peminjam
 
-  customerId String   @map("customer_id") @db.VarChar(56) // Relasi dengan Customer yang dijamin
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
+  customerId         String              @map("customer_id") @db.VarChar(56) // Relasi dengan Customer yang dijamin
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   document           Document? // Dokumen-dokumen Guarantor
   creditApplications CreditApplication[]
 
@@ -285,10 +294,12 @@ model CreditApplication {
   rejectedAt            DateTime?         @map("rejected_at") @db.Timestamptz() // Tanggal ditolak
   rejectionReason       String?           @map("rejection_reason") @db.Text // Alasan penolakan
   disbursedAt           DateTime?         @map("disbursed_at") @db.Timestamptz() // Tanggal pencairan
-  reviewerId            String?           @map("reviewed_by") @db.VarChar(56) // ID admin yang meninjau
-  approverId            String?           @map("approved_by") @db.VarChar(56) // ID admin yang menyetujui
   notes                 String?           @map("notes") @db.Text // Catatan tambahan
 
+  reviewerId       String?           @map("reviewer_id") @db.VarChar(56) // ID admin yang meninjau
+  reviewer         User?             @relation("ReviewedApplications", fields: [reviewerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  approverId       String?           @map("approver_id") @db.VarChar(56) // ID admin yang menyetujui
+  approver         User?             @relation("ApprovedApplications", fields: [approverId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   customerId       String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
   customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   guarantorId      String            @map("guarantor_id") @db.VarChar(56) // Relasi opsional dengan Guarantor
@@ -321,9 +332,9 @@ model CreditApplication {
   @@index([rejectedAt], name: "idx_credit_application_rejected_at")
   @@index([rejectionReason], name: "idx_credit_application_rejection_reason")
   @@index([disbursedAt], name: "idx_credit_application_disbursed_at")
-  @@index([reviewerId], name: "idx_credit_application_reviewed_by")
-  @@index([approverId], name: "idx_credit_application_approved_by")
   @@index([notes], name: "idx_credit_application_notes")
+  @@index([reviewerId], name: "idx_credit_application_reviewer_id")
+  @@index([approverId], name: "idx_credit_application_approver_id")
   @@index([customerId], name: "idx_credit_application_customer_id")
   @@index([guarantorId], name: "idx_credit_application_guarantor_id")
   @@index([bankAccountId], name: "idx_credit_application_bank_account_id")
@@ -336,9 +347,10 @@ model CreditWorthiness {
   id               String      @id @default(uuid()) @map("id") @db.VarChar(56)
   creditScore      CreditScore @map("credit_score") // Skor kredit
   assessmentResult String      @map("assessment_result") @db.Text // Hasil penilaian
-  assessedBy       String      @map("assessed_by") @db.VarChar(56) // ID admin yang menilai
   assessedAt       DateTime    @default(now()) @map("assessed_at") @db.Timestamptz() // Tanggal penilaian
 
+  assessorId          String?           @map("assessor_id") @db.VarChar(56) // ID admin yang menilai
+  assessor            User?             @relation(fields: [assessorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -348,8 +360,8 @@ model CreditWorthiness {
   @@index([id], name: "idx_credit_worthiness_id")
   @@index([creditScore], name: "idx_credit_worthiness_credit_score")
   @@index([assessmentResult], name: "idx_credit_worthiness_assessment_result")
-  @@index([assessedBy], name: "idx_credit_worthiness_assessed_by")
   @@index([assessedAt], name: "idx_credit_worthiness_assessed_at")
+  @@index([assessorId], name: "idx_credit_worthiness_assessor_id")
   @@index([creditApplicationId], name: "idx_credit_worthiness_credit_application_id")
   @@index([createdAt], name: "idx_credit_worthiness_created_at")
   @@index([updatedAt], name: "idx_credit_worthiness_updated_at")
@@ -366,10 +378,11 @@ model InterviewQuestion {
   orderNumber  Int               @map("order_number") @db.Integer // untuk mengurutkan pertanyaan
   options      String[]          @default([]) @map("options") // untuk multiple choice options
   placeholder  String?           @map("placeholder") @db.VarChar(255)
-  createdBy    String            @map("created_by") @db.VarChar(56)
 
-  updatedBy String @map("updated_by") @db.VarChar(56)
-
+  creatorId        String?           @map("creator_id") @db.VarChar(56)
+  creator          User?             @relation("CreatedQuestions", fields: [creatorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updaterId        String?           @map("updater_id") @db.VarChar(56)
+  updater          User?             @relation("UpdatedQuestions", fields: [updaterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   interviewAnswers InterviewAnswer[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
@@ -384,8 +397,8 @@ model InterviewQuestion {
   @@index([orderNumber], name: "idx_interview_questions_order_number")
   @@index([options], name: "idx_interview_questions_options")
   @@index([placeholder], name: "idx_interview_questions_placeholder")
-  @@index([createdBy], name: "idx_interview_questions_created_by")
-  @@index([updatedBy], name: "idx_interview_questions_updated_by")
+  @@index([creatorId], name: "idx_interview_questions_creator_id")
+  @@index([updaterId], name: "idx_interview_questions_updater_id")
   @@index([createdAt], name: "idx_interview_questions_created_at")
   @@index([updatedAt], name: "idx_interview_questions_updated_at")
   @@map("interview_questions")
@@ -393,7 +406,7 @@ model InterviewQuestion {
 
 model InterviewAnswer {
   id         String @id @default(uuid()) @map("id") @db.VarChar(56)
-  answerText String @db.Text
+  answerText String @map("answer_text") @db.Text
 
   creditApplicationId String            @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -535,7 +548,9 @@ model Report {
   startDate   DateTime   @map("start_date") @db.Timestamptz() // Tanggal mulai periode laporan
   endDate     DateTime   @map("end_date") @db.Timestamptz() // Tanggal akhir periode laporan
   fileUrl     String?    @map("file_url") // URL file laporan yang digenerate
-  generatedBy String     @map("generated_by") @db.VarChar(56) // ID user yang membuat laporan
+
+  generatorId String? @map("generator_id") @db.VarChar(56) // ID user yang membuat laporan
+  generator   User?   @relation(fields: [generatorId], references: [id], onDelete: SetNull, onUpdate: Cascade) // ID user yang membuat laporan
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
@@ -547,7 +562,7 @@ model Report {
   @@index([startDate], name: "idx_report_start_date")
   @@index([endDate], name: "idx_report_end_date")
   @@index([fileUrl], name: "idx_report_file_url")
-  @@index([generatedBy], name: "idx_report_generated_by")
+  @@index([generatorId], name: "idx_report_generator_id")
   @@index([createdAt], name: "idx_report_created_at")
   @@index([updatedAt], name: "idx_report_updated_at")
   @@map("reports")
