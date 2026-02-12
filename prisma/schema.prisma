@@ -9,33 +9,24 @@ datasource db {
 
 model User {
   id       String   @id @default(uuid()) @map("id") @db.VarChar(56)
-  name     String   @map("name") @db.VarChar(150)
   username String   @unique @map("username") @db.VarChar(50)
   email    String   @unique @map("email") @db.VarChar(150)
-  phone    String?  @unique @map("phone") @db.VarChar(20)
   avatar   String?  @map("avatar")
   image    String?  @map("image")
   role     UserRole @default(ADMIN) @map("role")
 
-  settings             Settings?
-  permissions          Permissions?
-  customer             Customer?
-  notifications        Notification[]
-  reports              Report[]
-  reviewedApplications CreditApplication[] @relation("ReviewedApplications")
-  approvedApplications CreditApplication[] @relation("ApprovedApplications")
-  createdQuestions     InterviewQuestion[] @relation("CreatedQuestions")
-  updatedQuestions     InterviewQuestion[] @relation("UpdatedQuestions")
-  creditWorthinesses   CreditWorthiness[]
+  settings      Settings?
+  permissions   Permissions?
+  customer      Customer?
+  admin         Admin?
+  notifications Notification[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
 
   @@index([id], name: "idx_user_id")
-  @@index([name], name: "idx_user_name")
   @@index([username], name: "idx_user_username")
   @@index([email], name: "idx_user_email")
-  @@index([phone], name: "idx_user_phone")
   @@index([avatar], name: "idx_user_avatar")
   @@index([image], name: "idx_user_image")
   @@index([role], name: "idx_user_role")
@@ -123,8 +114,42 @@ model Notification {
 }
 
 model Admin {
-  id String @id @default(cuid()) @map("id") @db.VarChar(56)
+  id            String         @id @default(cuid()) @map("id") @db.VarChar(56)
+  fullName      String         @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
+  nationalId    String?        @unique @map("national_id") @db.VarChar(20) // NIK/KTP
+  birthPlace    String?        @map("birth_place") @db.VarChar(100) // Tempat lahir
+  birthDate     DateTime?      @map("birth_date") @db.Timestamptz() // Tanggal lahir
+  gender        Gender?        @map("gender") // Jenis kelamin
+  phone         String?        @map("phone") @db.VarChar(20) // Nomor telepon
+  email         String?        @map("email") @db.VarChar(150) // Email nasabah
+  address       String?        @map("address") @db.Text // Alamat lengkap
+  maritalStatus MaritalStatus? @map("marital_status") // Status pernikahan
 
+  userId               String?             @unique @map("user_id") @db.VarChar(56)
+  user                 User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  reports              Report[]
+  reviewedApplications CreditApplication[] @relation("ReviewedApplications")
+  approvedApplications CreditApplication[] @relation("ApprovedApplications")
+  createdQuestions     InterviewQuestion[] @relation("CreatedQuestions")
+  updatedQuestions     InterviewQuestion[] @relation("UpdatedQuestions")
+  creditWorthinesses   CreditWorthiness[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([id], name: "idx_admin_id")
+  @@index([fullName], name: "idx_admin_full_name")
+  @@index([nationalId], name: "idx_admin_national_id")
+  @@index([birthPlace], name: "idx_admin_birth_place")
+  @@index([birthDate], name: "idx_admin_birth_date")
+  @@index([gender], name: "idx_admin_gender")
+  @@index([phone], name: "idx_admin_phone")
+  @@index([email], name: "idx_admin_email")
+  @@index([address], name: "idx_admin_address")
+  @@index([maritalStatus], name: "idx_admin_marital_status")
+  @@index([userId], name: "idx_admin_user_id")
+  @@index([createdAt], name: "idx_admin_created_at")
+  @@index([updatedAt], name: "idx_admin_updated_at")
   @@map("admins")
 }
 
@@ -296,9 +321,9 @@ model CreditApplication {
   notes                 String?           @map("notes") @db.Text // Catatan tambahan
 
   reviewerId       String?           @map("reviewer_id") @db.VarChar(56) // ID admin yang meninjau
-  reviewer         User?             @relation("ReviewedApplications", fields: [reviewerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  reviewer         Admin?            @relation("ReviewedApplications", fields: [reviewerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   approverId       String?           @map("approver_id") @db.VarChar(56) // ID admin yang menyetujui
-  approver         User?             @relation("ApprovedApplications", fields: [approverId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  approver         Admin?            @relation("ApprovedApplications", fields: [approverId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   customerId       String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
   customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   guarantorId      String            @map("guarantor_id") @db.VarChar(56) // Relasi opsional dengan Guarantor
@@ -349,7 +374,7 @@ model CreditWorthiness {
   assessedAt       DateTime    @default(now()) @map("assessed_at") @db.Timestamptz() // Tanggal penilaian
 
   assessorId          String?           @map("assessor_id") @db.VarChar(56) // ID admin yang menilai
-  assessor            User?             @relation(fields: [assessorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  assessor            Admin?            @relation(fields: [assessorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
   creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -379,9 +404,9 @@ model InterviewQuestion {
   placeholder  String?           @map("placeholder") @db.VarChar(255)
 
   creatorId        String?           @map("creator_id") @db.VarChar(56)
-  creator          User?             @relation("CreatedQuestions", fields: [creatorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  creator          Admin?            @relation("CreatedQuestions", fields: [creatorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updaterId        String?           @map("updater_id") @db.VarChar(56)
-  updater          User?             @relation("UpdatedQuestions", fields: [updaterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updater          Admin?            @relation("UpdatedQuestions", fields: [updaterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   interviewAnswers InterviewAnswer[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
@@ -549,7 +574,7 @@ model Report {
   fileUrl     String?    @map("file_url") // URL file laporan yang digenerate
 
   generatorId String? @map("generator_id") @db.VarChar(56) // ID user yang membuat laporan
-  generator   User?   @relation(fields: [generatorId], references: [id], onDelete: SetNull, onUpdate: Cascade) // ID user yang membuat laporan
+  generator   Admin?  @relation(fields: [generatorId], references: [id], onDelete: SetNull, onUpdate: Cascade) // ID user yang membuat laporan
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
