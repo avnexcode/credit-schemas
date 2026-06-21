@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -8,586 +8,628 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid()) @map("id") @db.VarChar(56)
-  username String   @unique @map("username") @db.VarChar(50)
-  email    String   @unique @map("email") @db.VarChar(150)
-  avatar   String?  @map("avatar")
-  image    String?  @map("image")
-  role     UserRole @default(ADMIN) @map("role")
+  id        String          @id @default(uuid()) @map("id_3f8a9c1e_6d2b_4b7a_9c5e_2f1d8a7b3c4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  username  String          @unique @map("username_a1d7e3f2_9b4c_4e6a_8d1f_5c2b7a9e3d6f") @db.VarChar(50) // Username unik untuk login atau identifikasi user
+  email     String          @unique @map("email_7c2e9a1b_5d4f_4a8c_b3e1_6f9d2c7a8b5e") @db.VarChar(150) // Email unik untuk komunikasi dan autentikasi
+  avatar    String?         @map("avatar_d4a1b9c7_3e5f_4c2a_8d6b_1f7e9a2c3d5b") // URL avatar kecil (opsional)
+  image     String?         @map("image_9e3b7c1d_2a5f_4d8c_b6a1_3f2e7c9a4d5b") // URL gambar profil utama (opsional)
+  role      UserRole        @default(ADMIN) @map("role_b7d2a4e9_6c1f_4a3e_9d5b_2c8a7f1e3d6c") // Role user (authorization), default ADMIN
+  providers LoginProvider[] @default([]) @map("providers_2a9f3d7c_5e1b_4c6a_8d2f_9b7c1e3a5d4f") // Daftar metode login (Google, Email, dll)
 
-  settings      Settings?
-  permissions   Permissions?
-  customer      Customer?
-  admin         Admin?
-  notifications Notification[]
+  settings      Setting? // Relasi ke pengaturan user (opsional, 1-1)
+  customer      Customer? // Relasi jika user adalah customer
+  admin         Admin? // Relasi jika user adalah admin
+  notifications Notification[] // Daftar notifikasi milik user
+  subscriptions Subscription[] // Subscription Web Push
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_f1c7a9d3_2e5b_4a8c_9d6f_3b2a7c1e5d4f") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_6b2e7c9a_4d1f_4a3e_8c5b_7d9a2f1e3c6b") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_user_id")
-  @@index([username], name: "idx_user_username")
-  @@index([email], name: "idx_user_email")
-  @@index([avatar], name: "idx_user_avatar")
-  @@index([image], name: "idx_user_image")
-  @@index([role], name: "idx_user_role")
-  @@index([createdAt], name: "idx_user_created_at")
-  @@index([updatedAt], name: "idx_user_updated_at")
-  @@map("users")
+  @@index([id], name: "idx_user_id_e3a7d1c9_5b2f_4c6a_9d8e_1f7a3c2b5d4e") // Index untuk pencarian berdasarkan id
+  @@index([username], name: "idx_user_username_4d9a2c7e_1b5f_4a3c_8e6d_2f7a9c1e3b5d") // Index untuk username
+  @@index([email], name: "idx_user_email_c2a7e9d1_3f5b_4d6a_8c9e_7b1a2c3d5e4f") // Index untuk email
+  @@index([avatar], name: "idx_user_avatar_8f3a1c7d_5e2b_4a9c_b6d1_3c7e2f9a5d4b") // Index untuk avatar (jika sering query)
+  @@index([image], name: "idx_user_image_5c1e7a9d_3b2f_4d6a_8c9e_1f7a3d2b5c4e") // Index untuk image
+  @@index([role], name: "idx_user_role_a9c3e7d1_5f2b_4a6c_8d9e_3b1a7c2d5e4f") // Index untuk filtering berdasarkan role
+  @@index([providers], name: "idx_user_providers_9c3e1a7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Index untuk provider login
+  @@index([createdAt], name: "idx_user_created_at_1d7a9c3e_5b2f_4c6a_8e9d_3f7a2c1b5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_user_updated_at_7a3c9e1d_5b2f_4d6a_8c9e_2f1a7b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("users_3e1a7c9d_5b2f_4a6c_8d9e_2f7b1c3a5d4e") // Nama tabel di database
 }
 
-model Settings {
-  id           String   @id @default(uuid()) @map("id") @db.VarChar(56)
-  theme        Theme    @default(SYSTEM) @map("theme")
-  language     Language @default(ID) @map("language")
-  notification Boolean  @default(true) @map("notification") @db.Boolean
+model Setting {
+  id           String   @id @default(uuid()) @map("id_2b7f9c1e_4a3d_4e8b_9c6a_1f5d3b7e2c9a") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  theme        Theme    @default(SYSTEM) @map("theme_8c3e1a7d_5f2b_4d6a_9c9e_2f1a7b3c5d4e") // Tema tampilan user (SYSTEM, LIGHT, DARK)
+  language     Language @default(ID) @map("language_4a9d2c7e_1b5f_4a3c_8e6d_3f7a9c1e2b5d") // Bahasa antarmuka user (ID, EN, dll)
+  notification Boolean  @default(false) @map("notification_6e1c9a3d_2f5b_4d7a_8c1e_9b3a2f7c5d4e") @db.Boolean // Status notifikasi aktif/nonaktif
 
-  userId String @unique @map("user_id") @db.VarChar(56)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique @map("user_id_3d7a1c9e_5b2f_4a6c_8d9e_1f7b3c2a5d4e") @db.VarChar(56) // Foreign key ke tabel users
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_settings_user_1f7b3c2a5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_9c1e7a3d_5b2f_4d6a_8c9e_2f1a7b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_1a7c9e3d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_settings_id")
-  @@index([theme], name: "idx_settings_theme")
-  @@index([language], name: "idx_settings_language")
-  @@index([notification], name: "idx_settings_notification")
-  @@index([userId], name: "idx_settings_user_id")
-  @@index([createdAt], name: "idx_settings_created_at")
-  @@index([updatedAt], name: "idx_settings_updated_at")
-  @@map("settings")
+  @@index([id], name: "idx_settings_id_2f7a3b1c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([theme], name: "idx_settings_theme_1f7a2b3c5d4e") // Index untuk filtering berdasarkan tema
+  @@index([language], name: "idx_settings_language_7f1a3b2c5d4e") // Index untuk filtering berdasarkan bahasa
+  @@index([notification], name: "idx_settings_notification_2f7a1b3c5d4e") // Index untuk filtering status notifikasi
+  @@index([userId], name: "idx_settings_user_id_5f7a2b1c3d4e") // Index untuk relasi ke user
+  @@index([createdAt], name: "idx_settings_created_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_settings_updated_at__7f2a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("settings_6c9e3a1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
-model Permissions {
-  id           String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  createReport Boolean @default(false) @map("create_report") @db.Boolean
+model Subscription {
+  id        String  @id @default(uuid()) @map("id_8f2a1b3c_5d4e_4d6a_9c9e_1f7a3b2c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  endpoint  String  @unique @map("endpoint_3c7e1a9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Text // URL endpoint dari browser Push API
+  p256dh    String  @map("p256dh_9a1e7c3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Text // Public key untuk enkripsi pesan push
+  auth      String  @map("auth_4d2c9a7e_1b5f_4a3c_8e6d_3f7a9c1e2b5d") @db.Text // Auth secret untuk verifikasi subscription
+  userAgent String? @map("user_agent_7e3a1c9d_5b2f_4d6a_8c9e_2f1a7b3c5d4e") @db.VarChar(255) // Informasi browser/perangkat pengguna (opsional)
 
-  userId String @unique @map("user_id") @db.VarChar(56)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @map("user_id_2c9a7e1d_5b3f_4d6a_8c9e_7f1a2b3c5d4e") @db.VarChar(56) // Foreign key ke tabel users
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_subscription_user_1f7a3b2c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_8e1c3a7d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_1a3e9c7d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_permissions_id")
-  @@index([createReport], name: "idx_permissions_create_report")
-  @@index([userId], name: "idx_permissions_user_id")
-  @@index([createdAt], name: "idx_permissions_created_at")
-  @@index([updatedAt], name: "idx_permissions_updated_at")
-  @@map("permissions")
+  @@index([id], name: "idx_subscription_id_5b2f4d6a_8c9e_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([endpoint], name: "idx_subscription_endpoint_3c7e1a9d_5b2f4d6a_8c9e") // Index untuk pencarian berdasarkan endpoint
+  @@index([userId], name: "idx_subscription_user_id_9a1e7c3d_5b2f_4d6a_8c9e") // Index untuk relasi ke user
+  @@index([userAgent], name: "idx_subscription_user_agent_4d2c9a7e_1b5f4a3c") // Index untuk filtering berdasarkan perangkat
+  @@index([createdAt], name: "idx_subscription_created_at_7e3a1c9d_5b2f4d6a") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_subscription_updated_at_2f7a1b3c_5d4e6a8c") // Index untuk sorting/filter waktu update
+  @@map("subscriptions_6d2e9a1c_5b3f_4d7a_8c9e_2f1a7b3c5d4e") // Nama tabel di database
 }
 
 model Notification {
-  id          String               @id @default(uuid()) @map("id") @db.VarChar(56)
-  type        NotificationType     @map("type") // Tipe notifikasi (SYSTEM atau PERSONAL)
-  category    String               @map("category") @db.VarChar(100) // Kategori notifikasi (LOAN_APPROVED, PAYMENT_DUE, dll)
-  title       String               @map("title") @db.VarChar(150) // Judul notifikasi
-  message     String               @map("message") @db.Text // Isi pesan notifikasi
-  actionUrl   String?              @map("action_url") @db.VarChar(255) // URL untuk action button (opsional)
-  actionLabel String?              @map("action_label") @db.VarChar(50) // Label untuk action button (opsional)
-  priority    NotificationPriority @default(NORMAL) @map("priority") // Prioritas notifikasi
-  isRead      Boolean              @default(false) @map("is_read") @db.Boolean // Status sudah dibaca
-  readAt      DateTime?            @map("read_at") @db.Timestamptz() // Tanggal dibaca
-  relatedType String?              @map("related_type") @db.VarChar(50) // Tipe relasi (LOAN, PAYMENT, APPLICATION, dll)
+  id          String               @id @default(uuid()) @map("id_3c7e1a9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  type        NotificationType     @map("type_9a1e7c3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Tipe notifikasi (INFO, WARNING, ERROR, dll)
+  category    String               @map("category_4d2c9a7e_1b5f_4a3c_8e6d_3f7a9c1e2b5d") @db.VarChar(100) // Kategori notifikasi untuk pengelompokan
+  title       String               @map("title_7e3a1c9d_5b2f_4d6a_8c9e_2f1a7b3c5d4e") @db.VarChar(150) // Judul notifikasi
+  message     String               @map("message_2c9a7e1d_5b3f_4d6a_8c9e_7f1a2b3c5d4e") @db.Text // Isi pesan notifikasi
+  actionUrl   String?              @map("action_url_8e1c3a7d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.VarChar(255) // URL tujuan jika notifikasi diklik (opsional)
+  actionLabel String?              @map("action_label_5b3d9c1e_7a2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(50) // Label tombol aksi notifikasi (opsional)
+  priority    NotificationPriority @default(NORMAL) @map("priority_1a7c9e3d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") // Prioritas notifikasi (LOW, NORMAL, HIGH)
+  isRead      Boolean              @default(false) @map("is_read_6d2e9a1c_5b3f_4d7a_8c9e_2f1a7b3c5d4e") @db.Boolean // Status apakah notifikasi sudah dibaca
+  readAt      DateTime?            @map("read_at_9c1e3a7d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu notifikasi dibaca (opsional)
+  relatedType String?              @map("related_type_3e7a1c9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(50) // Tipe entitas terkait notifikasi (opsional)
 
-  relatedId String? @map("related_id") @db.VarChar(56)
-  userId    String? @map("user_id") @db.VarChar(56)
-  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  relatedId String? @map("related_id_7b1a3c9e_5d2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // ID entitas terkait notifikasi (opsional)
+  userId    String? @map("user_id_4c9e1a3d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke tabel users (opsional)
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_notification_user_3f7a2b1c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_2a3c7e9d_5b1f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_5e9c1a3d_7b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_notification_id")
-  @@index([type], name: "idx_notification_type")
-  @@index([category], name: "idx_notification_category")
-  @@index([title], name: "idx_notification_title")
-  @@index([message], name: "idx_notification_message")
-  @@index([actionUrl], name: "idx_notification_action_url")
-  @@index([actionLabel], name: "idx_notification_action_label")
-  @@index([priority], name: "idx_notification_priority")
-  @@index([isRead], name: "idx_notification_is_read")
-  @@index([readAt], name: "idx_notification_read_at")
-  @@index([relatedType], name: "idx_notification_related_type")
-  @@index([relatedId], name: "idx_notification_related_id")
-  @@index([userId], name: "idx_notification_user_id")
-  @@index([createdAt], name: "idx_notification_created_at")
-  @@index([updatedAt], name: "idx_notification_updated_at")
-  @@map("notifications")
+  @@index([id], name: "idx_notification_id_8d1e9a3c_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([type], name: "idx_notification_type_3c7a1e9d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") // Index untuk filtering berdasarkan tipe
+  @@index([category], name: "idx_notification_category_9e1c3a7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Index untuk filtering berdasarkan kategori
+  @@index([title], name: "idx_notification_title_4a7c9e1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan judul
+  @@index([message], name: "idx_notification_message_7d3e1a9c_5b2f_4d6a_8c9e_3f7a2b1c5d4e") // Index untuk pencarian berdasarkan isi pesan
+  @@index([actionUrl], name: "idx_notification_action_url_7f1a2b3c5d4e") // Index untuk action URL
+  @@index([actionLabel], name: "idx_notification_action_label_2f7a1b3c5d4e") // Index untuk action label
+  @@index([priority], name: "idx_notification_priority_7f2a1b3c5d4e") // Index untuk filtering berdasarkan prioritas
+  @@index([isRead], name: "idx_notification_is_read_2f7a1b3c5d4e") // Index untuk filtering status baca
+  @@index([readAt], name: "idx_notification_read_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu dibaca
+  @@index([relatedType], name: "idx_notification_related_type_7f2a1b3c5d4e") // Index untuk filtering berdasarkan tipe relasi
+  @@index([relatedId], name: "idx_notification_related_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan ID relasi
+  @@index([userId], name: "idx_notification_user_id_4e3a9c1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Index untuk relasi ke user
+  @@index([createdAt], name: "idx_notification_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_notification_updated_at_7f1a2b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("notifications_1a3e9c7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
 model Admin {
-  id            String         @id @default(cuid()) @map("id") @db.VarChar(56)
-  fullName      String         @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
-  nationalId    String?        @unique @map("national_id") @db.VarChar(20) // NIK/KTP
-  birthPlace    String?        @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate     DateTime?      @map("birth_date") @db.Timestamptz() // Tanggal lahir
-  gender        Gender?        @map("gender") // Jenis kelamin
-  phone         String?        @map("phone") @db.VarChar(20) // Nomor telepon
-  email         String?        @map("email") @db.VarChar(150) // Email nasabah
-  address       String?        @map("address") @db.Text // Alamat lengkap
-  maritalStatus MaritalStatus? @map("marital_status") // Status pernikahan
+  id            String         @id @default(uuid()) @map("id_6c1e9a3d_7b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  fullName      String         @map("full_name_3a7e1c9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(150) // Nama lengkap admin
+  nationalId    String         @unique @map("national_id_9d2c7a1e_5b3f_4d6a_8c9e_7f1a2b3c5d4e") @db.VarChar(20) // Nomor Induk Kependudukan (NIK) unik admin
+  birthPlace    String?        @map("birth_place_4e1a3c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(100) // Tempat lahir admin (opsional)
+  birthDate     DateTime?      @map("birth_date_7c9e1a3d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Date // Tanggal lahir admin (opsional)
+  gender        Gender?        @map("gender_2a5c9e1d_7b3f_4d6a_8c9e_1f7a3b2c5d4e") // Jenis kelamin admin (opsional)
+  age           Int?           @map("age_8e3a1c7d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") // Usia admin dalam tahun (opsional)
+  phone         String?        @map("phone_1d7c9a3e_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(20) // Nomor telepon admin (opsional)
+  email         String?        @map("email_5a3e1c9d_7b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(150) // Alamat email admin (opsional)
+  address       String?        @map("address_9c1e7a3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Text // Alamat lengkap admin (opsional)
+  maritalStatus MaritalStatus? @map("marital_status_3e9a1c7d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") // Status pernikahan admin (opsional)
 
-  userId               String?             @unique @map("user_id") @db.VarChar(56)
-  user                 User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  reports              Report[]
-  reviewedApplications CreditApplication[] @relation("ReviewedApplications")
-  approvedApplications CreditApplication[] @relation("ApprovedApplications")
-  createdQuestions     InterviewQuestion[] @relation("CreatedQuestions")
-  updatedQuestions     InterviewQuestion[] @relation("UpdatedQuestions")
-  creditWorthinesses   CreditWorthiness[]
+  userId                String?             @unique @map("user_id_6d2a9c1e_5b3f_4d7a_8c9e_2f1a7b3c5d4e") @db.VarChar(56) // Foreign key ke tabel users (opsional)
+  user                  User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_admin_user_2f1a7b3c5d4e")
+  reports               Report[]
+  reviewedApplications  CreditApplication[] @relation("ReviewedApplications")
+  approvedApplications  CreditApplication[] @relation("ApprovedApplications")
+  rejectedApplications  CreditApplication[] @relation("RejectedApplications")
+  disbursedApplications CreditApplication[] @relation("DisbursedApplications")
+  createdQuestions      InterviewQuestion[] @relation("CreatedQuestions")
+  updatedQuestions      InterviewQuestion[] @relation("UpdatedQuestions")
+  creditWorthinesses    CreditWorthiness[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_4b7e9c1a_5d2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_8c3a1e9d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_admin_id")
-  @@index([fullName], name: "idx_admin_full_name")
-  @@index([nationalId], name: "idx_admin_national_id")
-  @@index([birthPlace], name: "idx_admin_birth_place")
-  @@index([birthDate], name: "idx_admin_birth_date")
-  @@index([gender], name: "idx_admin_gender")
-  @@index([phone], name: "idx_admin_phone")
-  @@index([email], name: "idx_admin_email")
-  @@index([address], name: "idx_admin_address")
-  @@index([maritalStatus], name: "idx_admin_marital_status")
-  @@index([userId], name: "idx_admin_user_id")
-  @@index([createdAt], name: "idx_admin_created_at")
-  @@index([updatedAt], name: "idx_admin_updated_at")
-  @@map("admins")
+  @@index([id], name: "idx_admin_id_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([fullName], name: "idx_admin_full_name_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan nama lengkap
+  @@index([nationalId], name: "idx_admin_national_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan NIK
+  @@index([birthPlace], name: "idx_admin_birth_place_2f7a1b3c5d4e") // Index untuk filtering berdasarkan tempat lahir
+  @@index([birthDate], name: "idx_admin_birth_date_3f7a2b1c5d4e") // Index untuk sorting/filter tanggal lahir
+  @@index([gender], name: "idx_admin_gender_7f1a2b3c5d4e") // Index untuk filtering berdasarkan jenis kelamin
+  @@index([phone], name: "idx_admin_phone_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan nomor telepon
+  @@index([email], name: "idx_admin_email_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan email
+  @@index([address], name: "idx_admin_address_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan alamat
+  @@index([maritalStatus], name: "idx_admin_marital_status_2f7a1b3c5d4e") // Index untuk filtering berdasarkan status pernikahan
+  @@index([userId], name: "idx_admin_user_id_1f7a3b2c5d4e") // Index untuk relasi ke user
+  @@index([createdAt], name: "idx_admin_created_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_admin_updated_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("admins_5b2f9c1e_7a3d_4d6a_8c9e_1f7a3b2c5d4e") // Nama tabel di database
 }
 
 model Customer {
-  id               String          @id @default(uuid()) @map("id") @db.VarChar(56)
-  fullName         String          @map("full_name") @db.VarChar(150) // Nama lengkap nasabah
-  nationalId       String?         @unique @map("national_id") @db.VarChar(20) // NIK/KTP
-  birthPlace       String?         @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate        DateTime?       @map("birth_date") @db.Timestamptz() // Tanggal lahir
-  gender           Gender?         @map("gender") // Jenis kelamin
-  phone            String?         @map("phone") @db.VarChar(20) // Nomor telepon
-  email            String?         @map("email") @db.VarChar(150) // Email nasabah
-  address          String?         @map("address") @db.Text // Alamat lengkap
-  maritalStatus    MaritalStatus?  @map("marital_status") // Status pernikahan
-  employmentType   EmploymentType? @map("employment_type") // Jenis pekerjaan
-  employmentName   String?         @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
-  employmentPeriod Int?            @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
+  id               String          @id @default(uuid()) @map("id_7a3e1c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  fullName         String          @map("full_name_2c9e7a1d_5b3f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(150) // Nama lengkap customer
+  nationalId       String          @unique @map("national_id_8e1a3c7d_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.VarChar(20) // Nomor Induk Kependudukan (NIK) unik customer
+  birthPlace       String?         @map("birth_place_4d7c9a1e_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(100) // Tempat lahir customer (opsional)
+  birthDate        DateTime?       @map("birth_date_1e3a7c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Date // Tanggal lahir customer (opsional)
+  gender           Gender?         @map("gender_9c1e3a7d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") // Jenis kelamin customer (opsional)
+  age              Int?            @map("age_5a7e1c3d_9b2f_4d6a_8c9e_2f7a1b3c5d4e") // Usia customer dalam tahun (opsional)
+  phone            String?         @map("phone_3d9c7a1e_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(20) // Nomor telepon customer (opsional)
+  email            String?         @map("email_6e1a9c3d_5b2f_4d7a_8c9e_7f2a1b3c5d4e") @db.VarChar(150) // Alamat email customer (opsional)
+  address          String?         @map("address_2a7c1e9d_5b3f_4d6a_8c9e_2f7a1b3c5d4e") @db.Text // Alamat lengkap customer (opsional)
+  maritalStatus    MaritalStatus?  @map("marital_status_8d3e9a1c_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Status pernikahan customer (opsional)
+  spouseName       String?         @map("spouse_name_3d7c1a9e_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(150) // Nama pasangan customer (opsional)
+  spouseBirthDate  DateTime?       @map("spouse_birth_date_9e1c3a7d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Date // Tanggal lahir pasangan customer (opsional)
+  motherName       String?         @map("mother_name_4a9e7c1d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(150) // Nama ibu kandung customer (opsional)
+  employmentType   EmploymentType? @map("employment_type_4c1a7e9d_5b2f_4d6a_9c9e_3f7a2b1c5d4e") // Jenis pekerjaan customer (opsional)
+  companyName      String?         @map("company_name_9e7a3c1d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(150) // Nama perusahaan/instansi tempat bekerja (opsional)
+  companyAddress   String?         @map("company_address_7d3a1e9c_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Text // Alamat perusahaan tempat bekerja (opsional)
+  employmentPeriod Int?            @map("employment_period_1c3e9a7d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.Integer // Lama masa kerja dalam bulan (opsional)
+  educationLevel   EducationLevel? @map("education_level_6a1e3c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Pendidikan terakhir customer (opsional)
+  npwp             String?         @map("npwp_1c7e3a9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(30) // Nomor Pokok Wajib Pajak customer (opsional)
 
-  userId             String?             @unique @map("user_id") @db.VarChar(56) // Relasi dengan User (opsional untuk pengajuan offline)
-  user               User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  document           Document? // Dokumen-dokumen Customer
+  userId             String?             @unique @map("user_id_5b9e1a3d_7c2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke tabel users (opsional)
+  user               User?               @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_customer_user_2f7a1b3c5d4e")
+  document           Document?
   bankAccounts       BankAccount[]
-  guarantors         Guarantor[] // Guarantor sebagai penjamin 
-  creditApplications CreditApplication[] // Pengajuan kredit
+  guarantors         Guarantor[]
+  creditApplications CreditApplication[]
   loanReferences     LoanReference[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_7d2a9c1e_5b3f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_3e1c7a9d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_customer_id")
-  @@index([fullName], name: "idx_customer_full_name")
-  @@index([nationalId], name: "idx_customer_national_id")
-  @@index([birthPlace], name: "idx_customer_birth_place")
-  @@index([birthDate], name: "idx_customer_birth_date")
-  @@index([gender], name: "idx_customer_gender")
-  @@index([phone], name: "idx_customer_phone")
-  @@index([email], name: "idx_customer_email")
-  @@index([address], name: "idx_customer_address")
-  @@index([maritalStatus], name: "idx_customer_marital_status")
-  @@index([employmentType], name: "idx_customer_employment_type")
-  @@index([employmentName], name: "idx_customer_employment_name")
-  @@index([employmentPeriod], name: "idx_customer_employment_period")
-  @@index([userId], name: "idx_customer_user_id")
-  @@index([createdAt], name: "idx_customer_created_at")
-  @@index([updatedAt], name: "idx_customer_updated_at")
-  @@map("customers")
+  @@index([id], name: "idx_customer_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([fullName], name: "idx_customer_full_name_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nama lengkap
+  @@index([nationalId], name: "idx_customer_national_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan NIK
+  @@index([birthPlace], name: "idx_customer_birth_place_2f7a1b3c5d4e") // Index untuk filtering berdasarkan tempat lahir
+  @@index([birthDate], name: "idx_customer_birth_date_3f7a2b1c5d4e") // Index untuk sorting/filter tanggal lahir
+  @@index([gender], name: "idx_customer_gender_7f1a2b3c5d4e") // Index untuk filtering berdasarkan jenis kelamin
+  @@index([phone], name: "idx_customer_phone_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan nomor telepon
+  @@index([email], name: "idx_customer_email_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan email
+  @@index([address], name: "idx_customer_address_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan alamat
+  @@index([maritalStatus], name: "idx_customer_marital_status_7f2a1b3c5d4e") // Index untuk filtering berdasarkan status pernikahan
+  @@index([employmentType], name: "idx_customer_employment_type_1f7a3b2c5d4e") // Index untuk filtering berdasarkan jenis pekerjaan
+  @@index([companyName], name: "idx_customer_company_name_3f7a2b1c5d4e") // Index untuk pencarian berdasarkan nama tempat kerja
+  @@index([employmentPeriod], name: "idx_customer_employment_period_2f7a1b3c5d4e") // Index untuk filtering berdasarkan masa kerja
+  @@index([userId], name: "idx_customer_user_id_7f1a2b3c5d4e") // Index untuk relasi ke user
+  @@index([educationLevel], name: "idx_customer_education_level_3f7a2b1c5d4e") // Index untuk filtering berdasarkan pendidikan terakhir
+  @@index([spouseName], name: "idx_customer_spouse_name_7f1a2b3c5d4e") // Index untuk pencarian berdasarkan nama pasangan
+  @@index([spouseBirthDate], name: "idx_customer_spouse_birth_date_2f7a1b3c5d4e") // Index untuk sorting/filter tanggal lahir pasangan
+  @@index([motherName], name: "idx_customer_mother_name_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nama ibu kandung
+  @@index([npwp], name: "idx_customer_npwp_4f7a2b1c5d4e") // Index untuk pencarian berdasarkan NPWP
+  @@index([companyAddress], name: "idx_customer_company_address_6f2a1b3c5d4e") // Index untuk pencarian berdasarkan alamat perusahaan
+  @@index([createdAt], name: "idx_customer_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_customer_updated_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu update
+  @@map("customers_5f2b9c1e_7a3d_4d6a_8c9e_1f7a3b2c5d4e") // Nama tabel di database
 }
 
 model BankAccount {
-  id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  accountName   String  @map("account_name") @db.VarChar(150) // nama pemilik rekening
-  accountNumber String  @map("account_number") @db.VarChar(100)
-  isPrimary     Boolean @default(false) @map("is_primary") @db.Boolean
-  isVerified    Boolean @default(false) @map("is_verified") @db.Boolean
-  isActive      Boolean @default(true) @map("is_active") @db.Boolean
+  id            String  @id @default(uuid()) @map("id_4e9a1c7d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  accountName   String  @map("account_name_7c1e9a3d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(150) // Nama pemilik rekening bank
+  accountNumber String  @unique @map("account_number_2a3e1c9d_5b7f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(100) // Nomor rekening bank unik
+  isPrimary     Boolean @default(false) @map("is_primary_9d1a7c3e_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.Boolean // Menandai apakah ini rekening utama customer
+  isVerified    Boolean @default(false) @map("is_verified_6c3e9a1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.Boolean // Status verifikasi rekening oleh admin
+  isActive      Boolean @default(true) @map("is_active_1e7a3c9d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Boolean // Status aktif/nonaktif rekening
 
-  customerId         String              @map("customer_id") @db.VarChar(56)
-  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  creditApplications CreditApplication[] // Pengajuan kredit
+  customerId         String              @map("customer_id_8a9c1e3d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.VarChar(56) // Foreign key ke tabel customers
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_bank_account_customer_7f1a2b3c5d4e")
+  creditApplications CreditApplication[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_3d1c9e7a_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_5a7e3c1d_9b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_bank_account_id")
-  @@index([accountName], name: "idx_bank_account_name")
-  @@index([accountNumber], name: "idx_bank_account_number")
-  @@index([isPrimary], name: "idx_bank_account_is_primary")
-  @@index([isVerified], name: "idx_bank_account_is_verified")
-  @@index([isActive], name: "idx_bank_account_is_active")
-  @@index([customerId], name: "idx_bank_account_customer_id")
-  @@index([createdAt], name: "idx_bank_account_created_at")
-  @@index([updatedAt], name: "idx_bank_account_updated_at")
-  @@map("bank_accounts")
+  @@index([id], name: "idx_bank_account_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([accountName], name: "idx_bank_account_name_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan nama pemilik rekening
+  @@index([accountNumber], name: "idx_bank_account_number_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nomor rekening
+  @@index([isPrimary], name: "idx_bank_account_is_primary_3f7a2b1c5d4e") // Index untuk filtering rekening utama
+  @@index([isVerified], name: "idx_bank_account_is_verified_7f1a2b3c5d4e") // Index untuk filtering status verifikasi
+  @@index([isActive], name: "idx_bank_account_is_active_2f7a1b3c5d4e") // Index untuk filtering status aktif
+  @@index([customerId], name: "idx_bank_account_customer_id_1f7a3b2c5d4e") // Index untuk relasi ke customer
+  @@index([createdAt], name: "idx_bank_account_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_bank_account_updated_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("bank_accounts_9b3f1c7e_5a2d_4d6a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
 model Guarantor {
-  id               String         @id @default(uuid()) @map("id") @db.VarChar(56)
-  fullName         String         @map("full_name") @db.VarChar(150) // Nama lengkap penjamin
-  nationalId       String         @map("national_id") @db.VarChar(20) // NIK/KTP penjamin
-  birthPlace       String         @map("birth_place") @db.VarChar(100) // Tempat lahir
-  birthDate        DateTime       @map("birth_date") @db.Timestamptz() // Tanggal lahir
-  gender           Gender         @map("gender") // Jenis kelamin
-  address          String         @map("address") @db.Text // Alamat lengkap
-  phone            String         @map("phone") @db.VarChar(20) // Nomor telepon
-  email            String?        @map("email") @db.VarChar(150) // Email penjamin
-  maritalStatus    MaritalStatus  @map("marital_status") // Status pernikahan
-  employmentType   EmploymentType @map("employment_type") // Jenis pekerjaan
-  employmentName   String?        @map("employment_name") @db.VarChar(150) // Nama perusahaan/usaha
-  employmentPeriod Int?           @map("employment_period") @db.Integer // Lama bekerja (dalam bulan)
-  relationship     Relationship   @map("relationship") // Hubungan dengan peminjam
+  id               String         @id @default(uuid()) @map("id_6d1a9c3e_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  fullName         String         @map("full_name_3e7c1a9d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.VarChar(150) // Nama lengkap penjamin
+  nationalId       String         @unique @map("national_id_9a3c7e1d_5b2f_4d7a_8c9e_1f7a3b2c5d4e") @db.VarChar(20) // Nomor Induk Kependudukan (NIK) unik penjamin
+  birthPlace       String         @map("birth_place_1c9e3a7d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(100) // Tempat lahir penjamin
+  birthDate        DateTime       @map("birth_date_7e1a9c3d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Date // Tanggal lahir penjamin
+  gender           Gender         @map("gender_4a3c1e9d_5b7f_4d6a_8c9e_7f1a2b3c5d4e") // Jenis kelamin penjamin
+  age              Int            @map("age_8c9e1a3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Usia penjamin dalam tahun
+  phone            String         @map("phone_2e7a3c1d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.VarChar(20) // Nomor telepon penjamin
+  email            String?        @map("email_5d1c9a3e_7b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(150) // Alamat email penjamin (opsional)
+  address          String         @map("address_9c3e1a7d_5b2f_4d7a_8c9e_7f2a1b3c5d4e") @db.Text // Alamat lengkap penjamin
+  maritalStatus    MaritalStatus  @map("marital_status_1a7e9c3d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // Status pernikahan penjamin
+  employmentType   EmploymentType @map("employment_type_6c1e3a9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Jenis pekerjaan penjamin
+  companyName      String         @map("company_name_3a9e7c1d_5b3f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(150) // Nama perusahaan/instansi tempat penjamin bekerja
+  employmentPeriod Int?           @map("employment_period_7e3c1a9d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.Integer // Lama masa kerja penjamin dalam bulan (opsional)
+  relationship     Relationship   @map("relationship_4d9a3c1e_5b2f_4d6a_8c9e_3f7a2b1c5d4e") // Hubungan penjamin dengan customer
 
-  customerId         String              @map("customer_id") @db.VarChar(56) // Relasi dengan Customer yang dijamin
-  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  document           Document? // Dokumen-dokumen Guarantor
+  customerId         String              @map("customer_id_2c1e7a9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Foreign key ke tabel customers
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_guarantor_customer_1f7a3b2c5d4e")
+  document           Document?
   creditApplications CreditApplication[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_8e9a1c3d_5b2f_4d7a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_5b3c7e9a_1d2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_guarantor_id")
-  @@index([fullName], name: "idx_guarantor_full_name")
-  @@index([nationalId], name: "idx_guarantor_national_id")
-  @@index([birthPlace], name: "idx_guarantor_birth_place")
-  @@index([birthDate], name: "idx_guarantor_birth_date")
-  @@index([gender], name: "idx_guarantor_gender")
-  @@index([address], name: "idx_guarantor_address")
-  @@index([phone], name: "idx_guarantor_phone")
-  @@index([email], name: "idx_guarantor_email")
-  @@index([maritalStatus], name: "idx_guarantor_marital_status")
-  @@index([employmentType], name: "idx_guarantor_employment_type")
-  @@index([employmentName], name: "idx_guarantor_employment_name")
-  @@index([employmentPeriod], name: "idx_guarantor_employment_period")
-  @@index([relationship], name: "idx_guarantor_relationship")
-  @@index([customerId], name: "idx_guarantor_customer_id")
-  @@index([createdAt], name: "idx_guarantor_created_at")
-  @@index([updatedAt], name: "idx_guarantor_updated_at")
-  @@map("guarantors")
+  @@index([id], name: "idx_guarantor_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([fullName], name: "idx_guarantor_full_name_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nama lengkap
+  @@index([nationalId], name: "idx_guarantor_national_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan NIK
+  @@index([birthPlace], name: "idx_guarantor_birth_place_2f7a1b3c5d4e") // Index untuk filtering berdasarkan tempat lahir
+  @@index([birthDate], name: "idx_guarantor_birth_date_3f7a2b1c5d4e") // Index untuk sorting/filter tanggal lahir
+  @@index([gender], name: "idx_guarantor_gender_7f1a2b3c5d4e") // Index untuk filtering berdasarkan jenis kelamin
+  @@index([address], name: "idx_guarantor_address_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan alamat
+  @@index([phone], name: "idx_guarantor_phone_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nomor telepon
+  @@index([email], name: "idx_guarantor_email_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan email
+  @@index([maritalStatus], name: "idx_guarantor_marital_status_2f7a1b3c5d4e") // Index untuk filtering berdasarkan status pernikahan
+  @@index([employmentType], name: "idx_guarantor_employment_type_1f7a3b2c5d4e") // Index untuk filtering berdasarkan jenis pekerjaan
+  @@index([companyName], name: "idx_guarantor_company_name_3f7a2b1c5d4e") // Index untuk pencarian berdasarkan nama tempat kerja
+  @@index([employmentPeriod], name: "idx_guarantor_employment_period_7f2a1b3c5d4e") // Index untuk filtering berdasarkan masa kerja
+  @@index([relationship], name: "idx_guarantor_relationship_2f7a1b3c5d4e") // Index untuk filtering berdasarkan hubungan dengan customer
+  @@index([customerId], name: "idx_guarantor_customer_id_1f7a3b2c5d4e") // Index untuk relasi ke customer
+  @@index([createdAt], name: "idx_guarantor_created_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_guarantor_updated_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("guarantors_8b1f3c9e_5a2d_4d6a_8c9e_7f2a1b3c5d4e") // Nama tabel di database
 }
 
 model Document {
-  id            String  @id @default(uuid()) @map("id") @db.VarChar(56)
-  identityCard  String? @map("identity_card") // Gambar KTP
-  familyCard    String? @map("family_card") // Gambar KK
-  salarySlip    String? @map("salary_slip") // Slip gaji
-  bankStatement String? @map("bank_statement") // Rekening koran
-  selfie        String? @map("selfie") // Foto Selfie
+  id            String        @id @default(uuid()) @map("id_5c3e9a1d_7b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  owner         DocumentOwner @map("owner_2a7e1c9d_5b2f_4d6a_9c9e_3f7a2b1c5d4e") // Pemilik dokumen (CUSTOMER atau GUARANTOR)
+  identityCard  String?       @map("identity_card_9d1c3a7e_5b2f_4d7a_8c9e_2f7a1b3c5d4e") // URL file foto KTP (opsional)
+  familyCard    String?       @map("family_card_4e7a9c1d_5b3f_4d6a_8c9e_7f1a2b3c5d4e") // URL file foto Kartu Keluarga (opsional)
+  salarySlip    String?       @map("salary_slip_1c3e7a9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") // URL file slip gaji (opsional)
+  bankStatement String?       @map("bank_statement_6a9e1c3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // URL file rekening koran (opsional)
+  selfie        String?       @map("selfie_3d1a7c9e_5b2f_4d6a_9c9e_7f2a1b3c5d4e") // URL foto selfie pemilik dokumen (opsional)
 
-  customerId  String?    @unique @map("customer_id") @db.VarChar(56) // Relasi opsional dengan Customer
-  customer    Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  guarantorId String?    @unique @map("guarantor_id") @db.VarChar(56) // Relasi opsional dengan Guarantor
-  guarantor   Guarantor? @relation(fields: [guarantorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId  String?    @unique @map("customer_id_8c9e3a1d_5b7f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke tabel customers (opsional)
+  customer    Customer?  @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_document_customer_2f7a1b3c5d4e")
+  guarantorId String?    @unique @map("guarantor_id_7e1a3c9d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke tabel guarantors (opsional)
+  guarantor   Guarantor? @relation(fields: [guarantorId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_document_guarantor_3f7a2b1c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_2c7a9e1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_9e3c1a7d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_document_id")
-  @@index([identityCard], name: "idx_document_identity_card")
-  @@index([familyCard], name: "idx_document_family_card")
-  @@index([salarySlip], name: "idx_document_salary_slip")
-  @@index([bankStatement], name: "idx_document_bank_statement")
-  @@index([selfie], name: "idx_document_selfie")
-  @@index([customerId], name: "idx_document_customer_id")
-  @@index([guarantorId], name: "idx_document_guarantor_id")
-  @@index([createdAt], name: "idx_document_created_at")
-  @@index([updatedAt], name: "idx_document_updated_at")
-  @@map("documents")
+  @@index([id], name: "idx_document_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([owner], name: "idx_document_owner_1f7a3b2c5d4e") // Index untuk filtering berdasarkan pemilik dokumen
+  @@index([identityCard], name: "idx_document_identity_card_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan file KTP
+  @@index([familyCard], name: "idx_document_family_card_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan file Kartu Keluarga
+  @@index([salarySlip], name: "idx_document_salary_slip_3f7a2b1c5d4e") // Index untuk pencarian berdasarkan file slip gaji
+  @@index([bankStatement], name: "idx_document_bank_statement_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan file rekening koran
+  @@index([selfie], name: "idx_document_selfie_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan file selfie
+  @@index([customerId], name: "idx_document_customer_id_2f7a1b3c5d4e") // Index untuk relasi ke customer
+  @@index([guarantorId], name: "idx_document_guarantor_id_1f7a3b2c5d4e") // Index untuk relasi ke guarantor
+  @@index([createdAt], name: "idx_document_created_at_3f7a2b1c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_document_updated_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("documents_3f7b1c9e_5a2d_4d6a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
 model CreditApplication {
-  id                    String            @id @default(uuid()) @map("id") @db.VarChar(56)
-  applicationNumber     String            @unique @map("application_number") @db.VarChar(50) // Nomor pengajuan
-  loanType              LoanType          @map("loan_type") // Jenis pinjaman
-  loanAmount            Int               @map("loan_amount") @db.Integer // Jumlah pinjaman yang diajukan
-  loanPeriod            Int               @map("loan_period") @db.Integer // Jangka waktu (bulan)
-  loanPurpose           String?           @map("loan_purpose") @db.Text // Tujuan pinjaman
-  collateralCertificate String?           @map("collateral_certificate") // Sertifikat agunan
-  collateralValue       Int?              @map("collateral_value") // Nilai agunan (jika ada)
-  monthlyIncome         Int               @map("monthly_income") @db.Integer // Pendapatan per bulan
-  incomeProof           String?           @map("income_proof") // Bukti pendapatan
-  monthlyExpenses       Int               @map("monthly_expenses") @db.Integer // Pengeluaran per bulan
-  surplus               Int               @map("surplus") @db.Integer // Surplus (pendapatan - pengeluaran) per bulan
-  status                ApplicationStatus @default(DRAFT) @map("status") // Status pengajuan
-  submittedAt           DateTime?         @map("submitted_at") @db.Timestamptz() // Tanggal pengajuan
-  reviewedAt            DateTime?         @map("reviewed_at") @db.Timestamptz() // Tanggal ditinjau
-  approvedAt            DateTime?         @map("approved_at") @db.Timestamptz() // Tanggal disetujui
-  rejectedAt            DateTime?         @map("rejected_at") @db.Timestamptz() // Tanggal ditolak
-  rejectionReason       String?           @map("rejection_reason") @db.Text // Alasan penolakan
-  disbursedAt           DateTime?         @map("disbursed_at") @db.Timestamptz() // Tanggal pencairan
-  notes                 String?           @map("notes") @db.Text // Catatan tambahan
+  id                    String            @id @default(uuid()) @map("id_3f1a9c7e_5b2d_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  applicationNumber     String            @unique @map("application_number_8c7e1a3d_5b2f_4d6a_9c9e_1f7a3b2c5d4e") @db.VarChar(50) // Nomor unik pengajuan kredit
+  loanType              LoanType          @map("loan_type_2e9a1c7d_5b3f_4d6a_8c9e_7f2a1b3c5d4e") // Jenis pinjaman yang diajukan
+  loanAmount            Int               @map("loan_amount_6d1c3a9e_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.Integer // Jumlah pinjaman yang diajukan (dalam rupiah)
+  loanPeriod            Int               @map("loan_period_4a7e9c1d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Integer // Jangka waktu pinjaman (dalam bulan)
+  loanPurpose           String?           @map("loan_purpose_9c3e1a7d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Text // Tujuan penggunaan dana pinjaman (opsional)
+  collateralCertificate String?           @map("collateral_certificate_1e7a3c9d_5b2f_4d6a_9c9e_7f2a1b3c5d4e") // URL sertifikat agunan/jaminan (opsional)
+  collateralValue       Int?              @map("collateral_value_5d9c7a1e_3b2f_4d6a_8c9e_2f7a1b3c5d4e") // Nilai taksiran agunan/jaminan (opsional)
+  incomeType            IncomeType?       @map("income_type_5e9c1a3d_7b2f_4d6a_8c9e_2f7a1b3c5d4e") // Tipe pendapatan (opsional)
+  monthlyIncome         Int               @map("monthly_income_7a1e3c9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Integer // Pendapatan bulanan customer
+  incomeProof           String?           @map("income_proof_3c9e7a1d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") // URL bukti penghasilan customer (opsional)
+  monthlyExpenses       Int               @map("monthly_expenses_8e1a3c7d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.Integer // Total pengeluaran bulanan customer
+  surplus               Int               @map("surplus_2a7c9e1d_5b3f_4d6a_8c9e_2f7a1b3c5d4e") @db.Integer // Selisih pendapatan dan pengeluaran bulanan
+  status                ApplicationStatus @default(DRAFT) @map("status_6d3e1a9c_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Status pengajuan kredit (DRAFT, SUBMITTED, dll)
+  creditHistory         CreditHistory?    @map("credit_history_8f3a1c7d_5b2e_4d6a_9c9e_2a7b1c3d5e4f") // Status riwayat kredit (baik atau buruk)
+  numberOfDependents    Int               @map("number_of_dependents_3a1e9c7d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Integer // Jumlah tanggungan saat ini (opsional)
+  residenceStatus       ResidenceStatus   @map("residence_status_6c9e1a3d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") // Status tempat tinggal saat ini (opsional)
+  submittedAt           DateTime?         @map("submitted_at_9c1e7a3d_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu pengajuan dikirimkan (opsional)
+  reviewedAt            DateTime?         @map("reviewed_at_4e7a1c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pengajuan diulas oleh reviewer (opsional)
+  approvedAt            DateTime?         @map("approved_at_1a3c9e7d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Waktu pengajuan disetujui (opsional)
+  rejectedAt            DateTime?         @map("rejected_at_7e9c1a3d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pengajuan ditolak (opsional)
+  rejectionReason       String?           @map("rejection_reason_5c3a7e9d_1b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Text // Alasan penolakan pengajuan (opsional)
+  disbursedAt           DateTime?         @map("disbursed_at_3d1e9a7c_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu dana dicairkan (opsional)
+  notes                 String?           @map("notes_8a7c3e1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Text // Catatan tambahan terkait pengajuan (opsional)
+  interviewStatus       Boolean           @default(false) @map("interview_status_2e1a9c7d_5b3f_4d6a_8c9e_7f2a1b3c5d4e") @db.Boolean // Status apakah wawancara sudah diselesaikan
 
-  reviewerId       String?           @map("reviewer_id") @db.VarChar(56) // ID admin yang meninjau
-  reviewer         Admin?            @relation("ReviewedApplications", fields: [reviewerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  approverId       String?           @map("approver_id") @db.VarChar(56) // ID admin yang menyetujui
-  approver         Admin?            @relation("ApprovedApplications", fields: [approverId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  customerId       String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
-  customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  guarantorId      String            @map("guarantor_id") @db.VarChar(56) // Relasi opsional dengan Guarantor
-  guarantor        Guarantor         @relation(fields: [guarantorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  bankAccountId    String            @map("bank_account_id") @db.VarChar(56)
-  bankAccount      BankAccount       @relation(fields: [bankAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  loanReference    LoanReference? // Referensi pinjaman jika disetujui
-  creditWorthiness CreditWorthiness? // Penilaian kelayakan kredit
+  reviewerId       String?           @map("reviewer_id_6c9e3a1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke admin yang mengulas pengajuan (opsional)
+  reviewer         Admin?            @relation("ReviewedApplications", fields: [reviewerId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_credit_application_reviewer_1f7a3b2c5d4e")
+  approverId       String?           @map("approver_id_4a1e7c9d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke admin yang menyetujui pengajuan (opsional)
+  approver         Admin?            @relation("ApprovedApplications", fields: [approverId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_credit_application_approver_3f7a2b1c5d4e")
+  rejectorId       String?           @map("rejector_id_9e3c1a7d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Foreign key ke admin yang menolak pengajuan (opsional)
+  rejector         Admin?            @relation("RejectedApplications", fields: [rejectorId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_credit_application_rejector_7f2a1b3c5d4e")
+  disburserId      String?           @map("disburser_id_1d7a3c9e_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.VarChar(56) // Foreign key ke admin yang mencairkan dana (opsional)
+  disburser        Admin?            @relation("DisbursedApplications", fields: [disburserId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_credit_application_disburser_2f7a1b3c5d4e")
+  customerId       String            @map("customer_id_5e9a1c3d_7b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke tabel customers
+  customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_credit_application_customer_2f7a1b3c5d4e")
+  guarantorId      String            @map("guarantor_id_3c1e7a9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Foreign key ke tabel guarantors
+  guarantor        Guarantor         @relation(fields: [guarantorId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_credit_application_guarantor_1f7a3b2c5d4e")
+  bankAccountId    String            @map("bank_account_id_7a9e3c1d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke rekening bank pencairan dana
+  bankAccount      BankAccount       @relation(fields: [bankAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_credit_application_bank_account_3f7a2b1c5d4e")
+  loanReference    LoanReference?
+  creditWorthiness CreditWorthiness?
   interviewAnswers InterviewAnswer[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_2c7e9a1d_5b3f_4d6a_8c9e_7f1a2b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_8e1c3a7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_credit_application_id")
-  @@index([applicationNumber], name: "idx_credit_application_number")
-  @@index([loanType], name: "idx_credit_application_loan_type")
-  @@index([loanAmount], name: "idx_credit_application_loan_amount")
-  @@index([loanPeriod], name: "idx_credit_application_loan_period")
-  @@index([loanPurpose], name: "idx_credit_application_loan_purpose")
-  @@index([collateralCertificate], name: "idx_credit_application_collateral_cert")
-  @@index([collateralValue], name: "idx_credit_application_collateral_value")
-  @@index([monthlyIncome], name: "idx_credit_application_monthly_income")
-  @@index([incomeProof], name: "idx_credit_application_income_proof")
-  @@index([monthlyExpenses], name: "idx_credit_application_monthly_expenses")
-  @@index([surplus], name: "idx_credit_application_surplus")
-  @@index([status], name: "idx_credit_application_status")
-  @@index([submittedAt], name: "idx_credit_application_submitted_at")
-  @@index([reviewedAt], name: "idx_credit_application_reviewed_at")
-  @@index([approvedAt], name: "idx_credit_application_approved_at")
-  @@index([rejectedAt], name: "idx_credit_application_rejected_at")
-  @@index([rejectionReason], name: "idx_credit_application_rejection_reason")
-  @@index([disbursedAt], name: "idx_credit_application_disbursed_at")
-  @@index([notes], name: "idx_credit_application_notes")
-  @@index([reviewerId], name: "idx_credit_application_reviewer_id")
-  @@index([approverId], name: "idx_credit_application_approver_id")
-  @@index([customerId], name: "idx_credit_application_customer_id")
-  @@index([guarantorId], name: "idx_credit_application_guarantor_id")
-  @@index([bankAccountId], name: "idx_credit_application_bank_account_id")
-  @@index([createdAt], name: "idx_credit_application_created_at")
-  @@index([updatedAt], name: "idx_credit_application_updated_at")
-  @@map("credit_applications")
+  @@index([id], name: "idx_credit_application_id_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([applicationNumber], name: "idx_credit_application_number_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan nomor pengajuan
+  @@index([loanType], name: "idx_credit_application_loan_type_2f7a1b3c5d4e") // Index untuk filtering berdasarkan jenis pinjaman
+  @@index([loanAmount], name: "idx_credit_application_loan_amount_3f7a2b1c5d4e") // Index untuk sorting/filter jumlah pinjaman
+  @@index([loanPeriod], name: "idx_credit_application_loan_period_1f7a3b2c5d4e") // Index untuk filtering berdasarkan jangka waktu
+  @@index([loanPurpose], name: "idx_credit_application_loan_purpose_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan tujuan pinjaman
+  @@index([collateralCertificate], name: "idx_credit_application_collateral_cert_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan sertifikat agunan
+  @@index([collateralValue], name: "idx_credit_application_collateral_value_1f7a3b2c5d4e") // Index untuk sorting/filter nilai agunan
+  @@index([incomeType], name: "idx_credit_application_income_type_8f1a2b3c5d4e") // Index untuk filtering berdasarkan tipe pendapatan
+  @@index([monthlyIncome], name: "idx_credit_application_monthly_income_3f7a2b1c5d4e") // Index untuk sorting/filter pendapatan bulanan
+  @@index([incomeProof], name: "idx_credit_application_income_proof_7f1a2b3c5d4e") // Index untuk pencarian berdasarkan bukti penghasilan
+  @@index([monthlyExpenses], name: "idx_credit_application_monthly_expenses_2f7a1b3c5d4e") // Index untuk sorting/filter pengeluaran bulanan
+  @@index([surplus], name: "idx_credit_application_surplus_1f7a3b2c5d4e") // Index untuk sorting/filter surplus
+  @@index([status], name: "idx_credit_application_status_7f2a1b3c5d4e") // Index untuk filtering berdasarkan status pengajuan
+  @@index([numberOfDependents], name: "idx_credit_application_number_of_dependents_3f7a2b1c5d4e") // Index untuk sorting/filter jumlah tanggungan
+  @@index([residenceStatus], name: "idx_credit_application_residence_status_6f2a1b3c5d4e") // Index untuk filtering berdasarkan status tempat tinggal
+  @@index([submittedAt], name: "idx_credit_application_submitted_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu pengajuan
+  @@index([reviewedAt], name: "idx_credit_application_reviewed_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu review
+  @@index([approvedAt], name: "idx_credit_application_approved_at_3f7a2b1c5d4e") // Index untuk sorting/filter waktu persetujuan
+  @@index([rejectedAt], name: "idx_credit_application_rejected_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu penolakan
+  @@index([rejectionReason], name: "idx_credit_application_rejection_reason_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan alasan penolakan
+  @@index([disbursedAt], name: "idx_credit_application_disbursed_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu pencairan
+  @@index([notes], name: "idx_credit_application_notes_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan catatan
+  @@index([interviewStatus], name: "idx_credit_application_interview_status_2f7a1b3c5d4e") // Index untuk filtering status wawancara
+  @@index([reviewerId], name: "idx_credit_application_reviewer_id_3f7a2b1c5d4e") // Index untuk relasi ke reviewer
+  @@index([approverId], name: "idx_credit_application_approver_id_1f7a3b2c5d4e") // Index untuk relasi ke approver
+  @@index([rejectorId], name: "idx_credit_application_rejector_id_7f2a1b3c5d4e") // Index untuk relasi ke rejector
+  @@index([disburserId], name: "idx_credit_application_disburser_id_2f7a1b3c5d4e") // Index untuk relasi ke disburser
+  @@index([customerId], name: "idx_credit_application_customer_id_1f7a3b2c5d4e") // Index untuk relasi ke customer
+  @@index([guarantorId], name: "idx_credit_application_guarantor_id_3f7a2b1c5d4e") // Index untuk relasi ke guarantor
+  @@index([bankAccountId], name: "idx_credit_application_bank_account_id_7f2a1b3c5d4e") // Index untuk relasi ke rekening bank
+  @@index([createdAt], name: "idx_credit_application_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_credit_application_updated_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu update
+  @@map("credit_applications_7b2f9c1e_5a3d_4d6a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
 model CreditWorthiness {
-  id               String      @id @default(uuid()) @map("id") @db.VarChar(56)
-  creditScore      CreditScore @map("credit_score") // Skor kredit
-  assessmentResult String      @map("assessment_result") @db.Text // Hasil penilaian
-  assessedAt       DateTime    @default(now()) @map("assessed_at") @db.Timestamptz() // Tanggal penilaian
+  id               String      @id @default(uuid()) @map("id_5a1e9c3d_7b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  creditScore      CreditScore @map("credit_score_2c7e1a9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Skor kredit hasil penilaian (EXCELLENT, GOOD, FAIR, POOR, dll)
+  assessmentResult String?     @map("assessment_result_8e3a7c1d_5b2f_4d7a_9c9e_7f2a1b3c5d4e") @db.Text // Hasil narasi penilaian kelayakan kredit (opsional)
+  assessedAt       DateTime    @default(now()) @map("assessed_at_4d9c1a3e_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu penilaian dilakukan
 
-  assessorId          String?           @map("assessor_id") @db.VarChar(56) // ID admin yang menilai
-  assessor            Admin?            @relation(fields: [assessorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
-  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  assessorId          String?           @map("assessor_id_9a3e7c1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Foreign key ke admin yang melakukan penilaian (opsional)
+  assessor            Admin?            @relation(fields: [assessorId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_credit_worthiness_assessor_1f7a3b2c5d4e")
+  creditApplicationId String            @unique @map("credit_application_id_1c7e3a9d_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.VarChar(56) // Foreign key ke pengajuan kredit terkait
+  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_credit_worthiness_credit_application_7f2a1b3c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_6e1a9c7d_5b3f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_3d7c1a9e_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_credit_worthiness_id")
-  @@index([creditScore], name: "idx_credit_worthiness_credit_score")
-  @@index([assessmentResult], name: "idx_credit_worthiness_assessment_result")
-  @@index([assessedAt], name: "idx_credit_worthiness_assessed_at")
-  @@index([assessorId], name: "idx_credit_worthiness_assessor_id")
-  @@index([creditApplicationId], name: "idx_credit_worthiness_credit_application_id")
-  @@index([createdAt], name: "idx_credit_worthiness_created_at")
-  @@index([updatedAt], name: "idx_credit_worthiness_updated_at")
-  @@map("credit_worthiness")
+  @@index([id], name: "idx_credit_worthiness_id_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([creditScore], name: "idx_credit_worthiness_credit_score_7f2a1b3c5d4e") // Index untuk filtering berdasarkan skor kredit
+  @@index([assessmentResult], name: "idx_credit_worthiness_assessment_result_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan hasil penilaian
+  @@index([assessedAt], name: "idx_credit_worthiness_assessed_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu penilaian
+  @@index([assessorId], name: "idx_credit_worthiness_assessor_id_3f7a2b1c5d4e") // Index untuk relasi ke assessor
+  @@index([creditApplicationId], name: "idx_credit_worthiness_credit_application_id_7f2a1b3c5d4e") // Index untuk relasi ke pengajuan kredit
+  @@index([createdAt], name: "idx_credit_worthiness_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_credit_worthiness_updated_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu update
+  @@map("credit_worthiness_4f1b9c7e_5a2d_4d6a_8c9e_3f7a2b1c5d4e") // Nama tabel di database
 }
 
 model InterviewQuestion {
-  id           String            @id @default(uuid()) @map("id") @db.VarChar(56)
-  questionText String            @map("question_text") @db.Text
-  questionType QuestionType      @map("question_type")
-  category     QuestionCategory? @map("category")
-  isRequired   Boolean           @default(true) @map("is_required") @db.Boolean
-  isActive     Boolean           @default(true) @map("is_active") @db.Boolean
-  orderNumber  Int               @map("order_number") @db.Integer // untuk mengurutkan pertanyaan
-  options      String[]          @default([]) @map("options") // untuk multiple choice options
-  placeholder  String?           @map("placeholder") @db.VarChar(255)
+  id           String            @id @default(uuid()) @map("id_8c3e1a9d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  questionText String            @map("question_text_2a9e7c1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.Text // Teks pertanyaan wawancara
+  questionType QuestionType      @map("question_type_6e1c3a9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Tipe pertanyaan (ESSAY, MULTIPLE_CHOICE, dll)
+  category     QuestionCategory? @map("category_4d7a1c9e_5b2f_4d6a_9c9e_3f7a2b1c5d4e") // Kategori pertanyaan (opsional)
+  isRequired   Boolean           @default(true) @map("is_required_9c1e7a3d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.Boolean // Menandai apakah pertanyaan wajib dijawab
+  isActive     Boolean           @default(true) @map("is_active_1a3c9e7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Boolean // Status aktif/nonaktif pertanyaan
+  options      String[]          @default([]) @map("options_5e9a1c3d_7b2f_4d6a_8c9e_1f7a3b2c5d4e") // Daftar pilihan jawaban (untuk tipe pilihan ganda)
+  placeholder  String?           @map("placeholder_3d1e7c9a_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.VarChar(255) // Teks placeholder kolom jawaban (opsional)
 
-  creatorId        String?           @map("creator_id") @db.VarChar(56)
-  creator          Admin?            @relation("CreatedQuestions", fields: [creatorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  updaterId        String?           @map("updater_id") @db.VarChar(56)
-  updater          Admin?            @relation("UpdatedQuestions", fields: [updaterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  creatorId        String?           @map("creator_id_7a9c3e1d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke admin yang membuat pertanyaan (opsional)
+  creator          Admin?            @relation("CreatedQuestions", fields: [creatorId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_interview_question_creator_2f7a1b3c5d4e")
+  updaterId        String?           @map("updater_id_4c1e9a7d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke admin yang terakhir mengubah pertanyaan (opsional)
+  updater          Admin?            @relation("UpdatedQuestions", fields: [updaterId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_interview_question_updater_3f7a2b1c5d4e")
   interviewAnswers InterviewAnswer[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_2e7a1c9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_8d9c3a1e_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_interview_questions_id")
-  @@index([questionText], name: "idx_interview_questions_question_text")
-  @@index([questionType], name: "idx_interview_questions_question_type")
-  @@index([category], name: "idx_interview_questions_category")
-  @@index([isRequired], name: "idx_interview_questions_is_required")
-  @@index([isActive], name: "idx_interview_questions_is_active")
-  @@index([orderNumber], name: "idx_interview_questions_order_number")
-  @@index([options], name: "idx_interview_questions_options")
-  @@index([placeholder], name: "idx_interview_questions_placeholder")
-  @@index([creatorId], name: "idx_interview_questions_creator_id")
-  @@index([updaterId], name: "idx_interview_questions_updater_id")
-  @@index([createdAt], name: "idx_interview_questions_created_at")
-  @@index([updatedAt], name: "idx_interview_questions_updated_at")
-  @@map("interview_questions")
+  @@index([id], name: "idx_interview_questions_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([questionText], name: "idx_interview_questions_question_text_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan teks pertanyaan
+  @@index([questionType], name: "idx_interview_questions_question_type__7f2a1b3c5d4e") // Index untuk filtering berdasarkan tipe pertanyaan
+  @@index([category], name: "idx_interview_questions_category_2f7a1b3c5d4e") // Index untuk filtering berdasarkan kategori
+  @@index([isRequired], name: "idx_interview_questions_is_required_3f7a2b1c5d4e") // Index untuk filtering pertanyaan wajib
+  @@index([isActive], name: "idx_interview_questions_is_active_1f7a3b2c5d4e") // Index untuk filtering status aktif
+  @@index([options], name: "idx_interview_questions_options_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan opsi jawaban
+  @@index([placeholder], name: "idx_interview_questions_placeholder_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan placeholder
+  @@index([creatorId], name: "idx_interview_questions_creator_id_1f7a3b2c5d4e") // Index untuk relasi ke creator
+  @@index([updaterId], name: "idx_interview_questions_updater_id_3f7a2b1c5d4e") // Index untuk relasi ke updater
+  @@index([createdAt], name: "idx_interview_questions_created_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_interview_questions_updated_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("interview_questions_9b5f1c7e_3a2d_4d6a_8c9e_7f2a1b3c5d4e") // Nama tabel di database
 }
 
 model InterviewAnswer {
-  id         String @id @default(uuid()) @map("id") @db.VarChar(56)
-  answerText String @map("answer_text") @db.Text
+  id         String  @id @default(uuid()) @map("id_4e9c1a7d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  answerText String? @map("answer_text_7a3c9e1d_5b2f_4d6a_9c9e_3f7a2b1c5d4e") @db.Text // Teks jawaban dari pertanyaan wawancara
 
-  creditApplicationId String            @map("credit_application_id") @db.VarChar(56)
-  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  interviewQuestionId String            @map("interview_question_id") @db.VarChar(56)
-  interviewQuestion   InterviewQuestion @relation(fields: [interviewQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  creditApplicationId String            @map("credit_application_id_2d1e7c9a_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.VarChar(56) // Foreign key ke pengajuan kredit terkait
+  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_interview_answer_credit_application_7f1a2b3c5d4e")
+  interviewQuestionId String            @map("interview_question_id_8c9e3a1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke pertanyaan wawancara terkait
+  interviewQuestion   InterviewQuestion @relation(fields: [interviewQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_interview_answer_interview_question_2f7a1b3c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_5a1c7e9d_3b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_9e7a3c1d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_interview_answers_id")
-  @@index([answerText], name: "idx_interview_answers_answer_text")
-  @@index([creditApplicationId], name: "idx_interview_answers_credit_application_id")
-  @@index([interviewQuestionId], name: "idx_interview_answers_interview_question_id")
-  @@index([createdAt], name: "idx_interview_answers_created_at")
-  @@index([updatedAt], name: "idx_interview_answers_updated_at")
-  @@map("interview_answers")
+  @@index([id], name: "idx_interview_answers_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([answerText], name: "idx_interview_answers_answer_text_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan teks jawaban
+  @@index([creditApplicationId], name: "idx_interview_answers_credit_application_id_3f7a2b1c5d4e") // Index untuk relasi ke pengajuan kredit
+  @@index([interviewQuestionId], name: "idx_interview_answers_interview_question_id_7f2a1b3c5d4e") // Index untuk relasi ke pertanyaan wawancara
+  @@index([createdAt], name: "idx_interview_answers_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_interview_answers_updated_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu update
+  @@map("interview_answers_6f3b1c9e_5a2d_4d6a_8c9e_2f7a1b3c5d4e") // Nama tabel di database
 }
 
 model LoanReference {
-  id              String     @id @default(uuid()) @map("id") @db.VarChar(56)
-  loanNumber      String     @unique @map("loan_number") @db.VarChar(50) // Nomor pinjaman
-  principalAmount Int        @map("principal_amount") @db.Integer // Jumlah pokok pinjaman
-  interestRate    Int        @map("interest_rate") @db.Integer // Suku bunga per tahun (%)
-  loanPeriod      Int        @map("loan_period") @db.Integer // Jangka waktu (bulan)
-  monthlyPayment  Int        @map("monthly_payment") @db.Integer // Angsuran per bulan
-  totalPayment    Int        @map("total_payment") @db.Integer // Total pembayaran
-  status          LoanStatus @default(ACTIVE) @map("status") // Status pinjaman
-  startDate       DateTime   @map("start_date") @db.Timestamptz() // Tanggal mulai
-  endDate         DateTime   @map("end_date") @db.Timestamptz() // Tanggal jatuh tempo
-  nextPaymentDate DateTime   @map("next_payment_date") @db.Timestamptz() // Tanggal pembayaran berikutnya
-  overdueCount    Int        @default(0) @map("overdue_count") @db.Integer // Jumlah tunggakan
-  lateFeeAmount   Int        @default(0) @map("late_fee_amount") @db.Integer // Denda keterlambatan
+  id              String     @id @default(uuid()) @map("id_1c9e7a3d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  loanNumber      String     @unique @map("loan_number_7e3a1c9d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.VarChar(50) // Nomor unik referensi pinjaman
+  loanType        LoanType   @map("loan_type_4d1e9a7c_5b2f_4d6a_8c9e_1f7a3b2c5d4e") // Jenis pinjaman
+  principalAmount Int        @map("principal_amount_9a7c3e1d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Integer // Jumlah pokok pinjaman (dalam rupiah)
+  interestRate    Float      @map("interest_rate_2e1c9a7d_5b2f_4d7a_8c9e_7f1a2b3c5d4e") // Suku bunga pinjaman (dalam persentase)
+  loanPeriod      Int        @map("loan_period_6c7a1e9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Integer // Jangka waktu pinjaman (dalam bulan)
+  monthlyPayment  Int        @map("monthly_payment_3d9e1a7c_5b2f_4d6a_9c9e_1f7a3b2c5d4e") @db.Integer // Jumlah cicilan per bulan (dalam rupiah)
+  totalPayment    Int        @map("total_payment_8a1c7e9d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Integer // Total pembayaran selama masa pinjaman (dalam rupiah)
+  status          LoanStatus @default(ACTIVE) @map("status_5e3a9c1d_7b2f_4d6a_8c9e_2f7a1b3c5d4e") // Status pinjaman (ACTIVE, COMPLETED, DEFAULT, dll)
+  startDate       DateTime   @map("start_date_1d7c9a3e_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Tanggal mulai pinjaman
+  endDate         DateTime   @map("end_date_4c1e3a9d_5b2f_4d7a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Tanggal jatuh tempo pinjaman
+  nextPaymentDate DateTime   @map("next_payment_date_9e7a1c3d_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.Timestamptz() // Tanggal cicilan berikutnya
+  overdueCount    Int        @default(0) @map("overdue_count_2a3c9e1d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Integer // Jumlah keterlambatan pembayaran
+  lateFeeAmount   Int        @default(0) @map("late_fee_amount_7d1e7c9a_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Integer // Total akumulasi denda keterlambatan (dalam rupiah)
 
-  customerId          String            @map("customer_id") @db.VarChar(56) // Relasi dengan Customer
-  customer            Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  creditApplicationId String            @unique @map("credit_application_id") @db.VarChar(56)
-  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  loanBalance         LoanBalance? // Saldo pinjaman
-  paymentRecords      PaymentRecord[] // Riwayat pembayaran
+  customerId          String            @map("customer_id_6c9a3e1d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.VarChar(56) // Foreign key ke tabel customers
+  customer            Customer          @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_loan_reference_customer_3f7a2b1c5d4e")
+  creditApplicationId String            @unique @map("credit_application_id_3e1c7a9d_5b2f_4d7a_8c9e_7f2a1b3c5d4e") @db.VarChar(56) // Foreign key ke pengajuan kredit asal
+  creditApplication   CreditApplication @relation(fields: [creditApplicationId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "relation_loan_reference_credit_application_7f2a1b3c5d4e")
+  loanBalance         LoanBalance?
+  paymentRecords      PaymentRecord[]
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_8a9e1c3d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_4d3c9a1e_7b2f_4d6a_9c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_loan_reference_id")
-  @@index([loanNumber], name: "idx_loan_reference_loan_number")
-  @@index([principalAmount], name: "idx_loan_reference_principal_amount")
-  @@index([interestRate], name: "idx_loan_reference_interest_rate")
-  @@index([loanPeriod], name: "idx_loan_reference_loan_period")
-  @@index([monthlyPayment], name: "idx_loan_reference_monthly_payment")
-  @@index([totalPayment], name: "idx_loan_reference_total_payment")
-  @@index([status], name: "idx_loan_reference_status")
-  @@index([startDate], name: "idx_loan_reference_start_date")
-  @@index([endDate], name: "idx_loan_reference_end_date")
-  @@index([nextPaymentDate], name: "idx_loan_reference_next_payment_date")
-  @@index([overdueCount], name: "idx_loan_reference_overdue_count")
-  @@index([lateFeeAmount], name: "idx_loan_reference_late_fee_amount")
-  @@index([customerId], name: "idx_loan_reference_customer_id")
-  @@index([creditApplicationId], name: "idx_loan_reference_credit_application_id")
-  @@index([createdAt], name: "idx_loan_reference_created_at")
-  @@index([updatedAt], name: "idx_loan_reference_updated_at")
-  @@map("loan_references")
+  @@index([id], name: "idx_loan_reference_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([loanNumber], name: "idx_loan_reference_loan_number_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan nomor pinjaman
+  @@index([loanType], name: "idx_loan_reference_loan_type_1f7a3b2c5d4e") // Index untuk filtering berdasarkan jenis pinjaman
+  @@index([principalAmount], name: "idx_loan_reference_principal_amount_3f7a2b1c5d4e") // Index untuk sorting/filter jumlah pokok
+  @@index([interestRate], name: "idx_loan_reference_interest_rate_7f2a1b3c5d4e") // Index untuk sorting/filter suku bunga
+  @@index([loanPeriod], name: "idx_loan_reference_loan_period_2f7a1b3c5d4e") // Index untuk filtering berdasarkan jangka waktu
+  @@index([monthlyPayment], name: "idx_loan_reference_monthly_payment_1f7a3b2c5d4e") // Index untuk sorting/filter cicilan bulanan
+  @@index([totalPayment], name: "idx_loan_reference_total_payment_7f2a1b3c5d4e") // Index untuk sorting/filter total pembayaran
+  @@index([status], name: "idx_loan_reference_status_2f7a1b3c5d4e") // Index untuk filtering berdasarkan status pinjaman
+  @@index([startDate], name: "idx_loan_reference_start_date_3f7a2b1c5d4e") // Index untuk sorting/filter tanggal mulai
+  @@index([endDate], name: "idx_loan_reference_end_date_1f7a3b2c5d4e") // Index untuk sorting/filter tanggal jatuh tempo
+  @@index([nextPaymentDate], name: "idx_loan_reference_next_payment_date_7f2a1b3c5d4e") // Index untuk sorting/filter tanggal cicilan berikutnya
+  @@index([overdueCount], name: "idx_loan_reference_overdue_count_2f7a1b3c5d4e") // Index untuk filtering berdasarkan jumlah keterlambatan
+  @@index([lateFeeAmount], name: "idx_loan_reference_late_fee_amount_1f7a3b2c5d4e") // Index untuk sorting/filter total denda
+  @@index([customerId], name: "idx_loan_reference_customer_id_3f7a2b1c5d4e") // Index untuk relasi ke customer
+  @@index([creditApplicationId], name: "idx_loan_reference_credit_application_id_7f2a1b3c5d4e") // Index untuk relasi ke pengajuan kredit
+  @@index([createdAt], name: "idx_loan_reference_created_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_loan_reference_updated_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu update
+  @@map("loan_references_2f5b9c1e_7a3d_4d6a_8c9e_3f7a2b1c5d4e") // Nama tabel di database
 }
 
 model LoanBalance {
-  id                 String    @id @default(uuid()) @map("id") @db.VarChar(56)
-  principalRemaining Int       @map("principal_remaining") @db.Integer // Sisa pokok pinjaman
-  interestRemaining  Int       @map("interest_remaining") @db.Integer // Sisa bunga
-  totalRemaining     Int       @map("total_remaining") @db.Integer // Total sisa pinjaman
-  principalPaid      Int       @map("principal_paid") @db.Integer // Pokok yang sudah dibayar
-  interestPaid       Int       @map("interest_paid") @db.Integer // Bunga yang sudah dibayar
-  totalPaid          Int       @map("total_paid") @db.Integer // Total yang sudah dibayar
-  lateFeeTotal       Int       @default(0) @map("late_fee_total") @db.Integer // Total denda
-  lastPaymentDate    DateTime? @map("last_payment_date") @db.Timestamptz() // Tanggal pembayaran terakhir
-  lastPaymentAmount  Int       @default(0) @map("last_payment_amount") @db.Integer // Jumlah pembayaran terakhir
+  id                 String    @id @default(uuid()) @map("id_9c3e1a7d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  principalRemaining Int       @map("principal_remaining_4a7e9c1d_5b2f_4d6a_9c9e_1f7a3b2c5d4e") @db.Integer // Sisa pokok pinjaman yang belum terbayar
+  interestRemaining  Int       @map("interest_remaining_1d3c7a9e_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Integer // Sisa bunga pinjaman yang belum terbayar
+  totalRemaining     Int       @map("total_remaining_6e9a1c3d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") @db.Integer // Total sisa pinjaman (pokok + bunga)
+  principalPaid      Int       @map("principal_paid_2c1e7a9d_5b3f_4d6a_8c9e_3f7a2b1c5d4e") @db.Integer // Total pokok yang sudah dibayar
+  interestPaid       Int       @map("interest_paid_8a9e3c1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Integer // Total bunga yang sudah dibayar
+  totalPaid          Int       @map("total_paid_5d1c9e7a_7b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.Integer // Total pembayaran yang sudah dilakukan
+  lateFeeTotal       Int       @default(0) @map("late_fee_total_3e7a1c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Integer // Akumulasi total denda keterlambatan
+  lastPaymentDate    DateTime? @map("last_payment_date_7c9e3a1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Tanggal pembayaran terakhir yang dilakukan (opsional)
+  lastPaymentAmount  Int       @default(0) @map("last_payment_amount_4a1e9c7d_5b2f_4d7a_8c9e_3f7a2b1c5d4e") @db.Integer // Jumlah pada pembayaran terakhir (dalam rupiah)
 
-  loanReferenceId String        @unique @map("loan_reference_id") @db.VarChar(56)
-  loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  loanReferenceId String        @unique @map("loan_reference_id_9e3c1a7d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.VarChar(56) // Foreign key ke tabel loan_references
+  loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_loan_balance_loan_reference_7f1a2b3c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_1c7e9a3d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_6d3a1c9e_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_loan_balance_id")
-  @@index([principalRemaining], name: "idx_loan_balance_principal_remaining")
-  @@index([interestRemaining], name: "idx_loan_balance_interest_remaining")
-  @@index([totalRemaining], name: "idx_loan_balance_total_remaining")
-  @@index([principalPaid], name: "idx_loan_balance_principal_paid")
-  @@index([interestPaid], name: "idx_loan_balance_interest_paid")
-  @@index([totalPaid], name: "idx_loan_balance_total_paid")
-  @@index([lateFeeTotal], name: "idx_loan_balance_late_fee_total")
-  @@index([lastPaymentDate], name: "idx_loan_balance_last_payment_date")
-  @@index([lastPaymentAmount], name: "idx_loan_balance_last_payment_amount")
-  @@index([loanReferenceId], name: "idx_loan_balance_loan_reference_id")
-  @@index([createdAt], name: "idx_loan_balance_created_at")
-  @@index([updatedAt], name: "idx_loan_balance_updated_at")
-  @@map("loan_balances")
+  @@index([id], name: "idx_loan_balance_id_7f2a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([principalRemaining], name: "idx_loan_balance_principal_remaining_2f7a1b3c5d4e") // Index untuk sorting/filter sisa pokok
+  @@index([interestRemaining], name: "idx_loan_balance_interest_remaining_1f7a3b2c5d4e") // Index untuk sorting/filter sisa bunga
+  @@index([totalRemaining], name: "idx_loan_balance_total_remaining_3f7a2b1c5d4e") // Index untuk sorting/filter total sisa pinjaman
+  @@index([principalPaid], name: "idx_loan_balance_principal_paid_7f2a1b3c5d4e") // Index untuk sorting/filter total pokok terbayar
+  @@index([interestPaid], name: "idx_loan_balance_interest_paid_2f7a1b3c5d4e") // Index untuk sorting/filter total bunga terbayar
+  @@index([totalPaid], name: "idx_loan_balance_total_paid_1f7a3b2c5d4e") // Index untuk sorting/filter total pembayaran
+  @@index([lateFeeTotal], name: "idx_loan_balance_late_fee_total_7f2a1b3c5d4e") // Index untuk sorting/filter total denda
+  @@index([lastPaymentDate], name: "idx_loan_balance_last_payment_date_2f7a1b3c5d4e") // Index untuk sorting/filter tanggal pembayaran terakhir
+  @@index([lastPaymentAmount], name: "idx_loan_balance_last_payment_amount_1f7a3b2c5d4e") // Index untuk sorting/filter jumlah pembayaran terakhir
+  @@index([loanReferenceId], name: "idx_loan_balance_loan_reference_id_3f7a2b1c5d4e") // Index untuk relasi ke loan reference
+  @@index([createdAt], name: "idx_loan_balance_created_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_loan_balance_updated_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("loan_balances_4f9b1c7e_5a2d_4d6a_8c9e_1f7a3b2c5d4e") // Nama tabel di database
 }
 
 model PaymentRecord {
-  id                String        @id @default(uuid()) @map("id") @db.VarChar(56)
-  installmentNumber Int           @map("installment_number") @db.Integer // Angsuran ke-
-  dueDate           DateTime      @map("due_date") @db.Timestamptz() // Tanggal jatuh tempo
-  paymentDate       DateTime?     @map("payment_date") @db.Timestamptz() // Tanggal pembayaran
-  totalAmount       Int           @map("total_amount") @db.Integer // Jumlah keseluruhan
-  principalAmount   Int           @map("principal_amount") @db.Integer // Jumlah pokok
-  interestAmount    Int           @map("interest_amount") @db.Integer // Jumlah bunga
-  paidAmount        Int           @default(0) @map("paid_amount") @db.Integer // Jumlah yang dibayar
-  lateFeeAmount     Int           @default(0) @map("late_fee_amount") @db.Integer // Denda keterlambatan
-  status            PaymentStatus @default(PENDING) @map("status") // Status pembayaran
-  daysOverdue       Int           @default(0) @map("days_overdue") @db.Integer // Hari keterlambatan
+  id                String          @id @default(uuid()) @map("id_6c1e9a3d_5b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  installmentNumber Int             @map("installment_number_2a7e3c9d_5b2f_4d6a_9c9e_2f7a1b3c5d4e") @db.Integer // Nomor urutan cicilan pembayaran
+  principalAmount   Int             @map("principal_amount_8d9c1a3e_5b2f_4d7a_8c9e_1f7a3b2c5d4e") @db.Integer // Komponen pokok dalam cicilan ini
+  interestAmount    Int             @map("interest_amount_4e1c7a9d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Integer // Komponen bunga dalam cicilan ini
+  paidAmount        Int             @default(0) @map("paid_amount_9a3e1c7d_5b2f_4d6a_8c9e_7f1a2b3c5d4e") @db.Integer // Jumlah yang sudah dibayarkan pada cicilan ini
+  lateFeeAmount     Int             @default(0) @map("late_fee_amount_1c9d7a3e_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Integer // Denda keterlambatan pada cicilan ini
+  totalAmount       Int             @map("total_amount_5e7a1c9d_3b2f_4d6a_9c9e_1f7a3b2c5d4e") @db.Integer // Total tagihan cicilan ini (pokok + bunga + denda)
+  status            PaymentStatus   @default(PENDING) @map("status_3d1e9c7a_5b2f_4d6a_8c9e_7f2a1b3c5d4e") // Status pembayaran cicilan (PENDING, PAID, OVERDUE, dll)
+  category          PaymentCategory @default(INSTALLMENT) @map("payment_category_7a9c3e1d_5b2f_4d7a_8c9e_2f7a1b3c5d4e") // Kategori pembayaran (INSTALLMENT, EARLY_PAYMENT, dll)
+  dueDate           DateTime        @map("due_date_2e3a7c9d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Tanggal jatuh tempo cicilan
+  paymentDate       DateTime        @map("payment_date_6c1a9e3d_5b2f_4d6a_8c9e_3f7a2b1c5d4e") @db.Timestamptz() // Tanggal aktual pembayaran dilakukan
+  daysOverdue       Int             @default(0) @map("days_overdue_4d7e1c9a_5b2f_4d6a_9c9e_7f2a1b3c5d4e") @db.Integer // Jumlah hari keterlambatan pembayaran
 
-  loanReferenceId String        @map("loan_reference_id") @db.VarChar(56)
-  loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  loanReferenceId String        @map("loan_reference_id_8a1e3c9d_5b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.VarChar(56) // Foreign key ke tabel loan_references
+  loanReference   LoanReference @relation(fields: [loanReferenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "relation_payment_record_loan_reference_2f7a1b3c5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_5c9e7a1d_5b2f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_1e3a1c9d_7b2f_4d6a_8c9e_7f2a1b3c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_payment_record_id")
-  @@index([installmentNumber], name: "idx_payment_record_installment_number")
-  @@index([dueDate], name: "idx_payment_record_due_date")
-  @@index([paymentDate], name: "idx_payment_record_payment_date")
-  @@index([totalAmount], name: "idx_payment_record_total_amount")
-  @@index([principalAmount], name: "idx_payment_record_principal_amount")
-  @@index([interestAmount], name: "idx_payment_record_interest_amount")
-  @@index([paidAmount], name: "idx_payment_record_paid_amount")
-  @@index([lateFeeAmount], name: "idx_payment_record_late_fee_amount")
-  @@index([status], name: "idx_payment_record_status")
-  @@index([daysOverdue], name: "idx_payment_record_days_overdue")
-  @@index([loanReferenceId], name: "idx_payment_record_loan_reference_id")
-  @@index([createdAt], name: "idx_payment_record_created_at")
-  @@index([updatedAt], name: "idx_payment_record_updated_at")
-  @@map("payment_records")
+  @@index([id], name: "idx_payment_record_id_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([installmentNumber], name: "idx_payment_record_installment_number_1f7a3b2c5d4e") // Index untuk pencarian berdasarkan nomor cicilan
+  @@index([principalAmount], name: "idx_payment_record_principal_amount_3f7a2b1c5d4e") // Index untuk sorting/filter komponen pokok
+  @@index([interestAmount], name: "idx_payment_record_interest_amount_7f2a1b3c5d4e") // Index untuk sorting/filter komponen bunga
+  @@index([paidAmount], name: "idx_payment_record_paid_amount_2f7a1b3c5d4e") // Index untuk sorting/filter jumlah terbayar
+  @@index([lateFeeAmount], name: "idx_payment_record_late_fee_amount_1f7a3b2c5d4e") // Index untuk sorting/filter denda cicilan
+  @@index([totalAmount], name: "idx_payment_record_total_amount_7f2a1b3c5d4e") // Index untuk sorting/filter total tagihan
+  @@index([status], name: "idx_payment_record_status_2f7a1b3c5d4e") // Index untuk filtering berdasarkan status pembayaran
+  @@index([category], name: "idx_payment_record_category_3f7a2b1c5d4e") // Index untuk filtering berdasarkan kategori pembayaran
+  @@index([dueDate], name: "idx_payment_record_due_date_1f7a3b2c5d4e") // Index untuk sorting/filter tanggal jatuh tempo
+  @@index([paymentDate], name: "idx_payment_record_payment_date_7f2a1b3c5d4e") // Index untuk sorting/filter tanggal pembayaran
+  @@index([daysOverdue], name: "idx_payment_record_days_overdue_2f7a1b3c5d4e") // Index untuk sorting/filter hari keterlambatan
+  @@index([loanReferenceId], name: "idx_payment_record_loan_reference_id_1f7a3b2c5d4e") // Index untuk relasi ke loan reference
+  @@index([createdAt], name: "idx_payment_record_created_at_7f2a1b3c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_payment_record_updated_at_2f7a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("payment_records_8b1f3c9e_5a2d_4d6a_8c9e_1f7a3b2c5d4e") // Nama tabel di database
 }
 
 model Report {
-  id          String     @id @default(uuid()) @map("id") @db.VarChar(56)
-  reportType  ReportType @map("report_type") // Jenis laporan
-  title       String     @map("title") @db.VarChar(255) // Judul laporan
-  description String?    @map("description") @db.Text // Deskripsi laporan
-  startDate   DateTime   @map("start_date") @db.Timestamptz() // Tanggal mulai periode laporan
-  endDate     DateTime   @map("end_date") @db.Timestamptz() // Tanggal akhir periode laporan
-  fileUrl     String?    @map("file_url") // URL file laporan yang digenerate
+  id          String     @id @default(uuid()) @map("id_2e7a1c9d_5b3f_4d6a_8c9e_1f7a3b2c5d4e") @db.VarChar(56) // Primary key, unique identifier menggunakan UUID
+  reportType  ReportType @map("report_type_5c1e9a3d_7b2f_4d6a_8c9e_4f2a1b3c5d4e") // Jenis laporan (DAILY, WEEKLY, MONTHLY, dll)
+  title       String     @map("title_8a3e1c9d_2b5f_4d6a_8c9e_7f2a1b3c5d4e") @db.VarChar(255) // Judul laporan
+  description String?    @map("description_3d9c7e1a_4b2f_4d6a_8c9e_2f7a1b3c5d4e") @db.Text // Deskripsi detail laporan (opsional)
+  startDate   DateTime   @map("start_date_6e1a3c9d_9b4f_4d6a_8c9e_5f2a1b3c5d4e") @db.Timestamptz() // Tanggal awal periode laporan
+  endDate     DateTime   @map("end_date_1c7e9a3d_5b2f_4d6a_8c9e_8f2a1b3c5d4e") @db.Timestamptz() // Tanggal akhir periode laporan
+  fileUrl     String?    @map("file_url_4a1e3c9d_7b5f_4d6a_8c9e_3f7a2b1c5d4e") // URL file laporan yang telah digenerate (opsional)
 
-  generatorId String? @map("generator_id") @db.VarChar(56) // ID user yang membuat laporan
-  generator   Admin?  @relation(fields: [generatorId], references: [id], onDelete: SetNull, onUpdate: Cascade) // ID user yang membuat laporan
+  generatorId String? @map("generator_id_7e5c1a9d_3b2f_4d6a_8c9e_6f2a1b3c5d4e") @db.VarChar(56) // Foreign key ke admin yang membuat laporan (opsional)
+  generator   Admin?  @relation(fields: [generatorId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "relation_report_user_7a3c2f9b5d4e")
 
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at_9d3a7e1c_6b4f_4d6a_8c9e_9f2a1b3c5d4e") @db.Timestamptz() // Waktu pembuatan data
+  updatedAt DateTime @updatedAt @map("updated_at_2c9e1a7d_4b3f_4d6a_8c9e_1f7a3b2c5d4e") @db.Timestamptz() // Waktu terakhir update otomatis
 
-  @@index([id], name: "idx_report_id")
-  @@index([reportType], name: "idx_report_report_type")
-  @@index([title], name: "idx_report_title")
-  @@index([description], name: "idx_report_description")
-  @@index([startDate], name: "idx_report_start_date")
-  @@index([endDate], name: "idx_report_end_date")
-  @@index([fileUrl], name: "idx_report_file_url")
-  @@index([generatorId], name: "idx_report_generator_id")
-  @@index([createdAt], name: "idx_report_created_at")
-  @@index([updatedAt], name: "idx_report_updated_at")
-  @@map("reports")
+  @@index([id], name: "idx_report_id_4f2a1b3c5d4e") // Index untuk pencarian berdasarkan id
+  @@index([reportType], name: "idx_report_report_type_7f2a1b3c5d4e") // Index untuk filtering berdasarkan jenis laporan
+  @@index([title], name: "idx_report_title_2f7a1b3c5d4e") // Index untuk pencarian berdasarkan judul
+  @@index([description], name: "idx_report_description_5f2a1b3c5d4e") // Index untuk pencarian berdasarkan deskripsi
+  @@index([startDate], name: "idx_report_start_date_8f2a1b3c5d4e") // Index untuk sorting/filter tanggal mulai
+  @@index([endDate], name: "idx_report_end_date_3f7a2b1c5d4e") // Index untuk sorting/filter tanggal selesai
+  @@index([fileUrl], name: "idx_report_file_url_6f2a1b3c5d4e") // Index untuk pencarian berdasarkan URL file
+  @@index([generatorId], name: "idx_report_generator_id_9f2a1b3c5d4e") // Index untuk relasi ke generator/admin
+  @@index([createdAt], name: "idx_report_created_at_1f7a3b2c5d4e") // Index untuk sorting/filter waktu dibuat
+  @@index([updatedAt], name: "idx_report_updated_at_4f2a1b3c5d4e") // Index untuk sorting/filter waktu update
+  @@map("reports_7b2f1c9e_5a3d_4d6a_8c9e_3f2a1b7c5d4e") // Nama tabel di database
 }

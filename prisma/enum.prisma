@@ -1,194 +1,255 @@
 enum LoginProvider {
-    EMAIL  @map("email")
-    GOOGLE @map("google")
+    EMAIL  @map("email_1f7a3b2c5d4e") // Login menggunakan email dan password
+    GOOGLE @map("google_7f2a1b3c5d4e") // Login menggunakan akun Google (OAuth)
 
-    @@map("login_provider")
+    @@map("login_provider_2a9f3d7c_5e1b_4c6a_8d2f_9b7c1e3a5d4f")
 }
 
 enum UserRole {
-    ADMIN    @map("admin")
-    CUSTOMER @map("customer")
+    ADMIN    @map("admin_2f7a1b3c5d4e") // Pengguna dengan akses pengelolaan sistem
+    CUSTOMER @map("customer_3f7a2b1c5d4e") // Pengguna sebagai nasabah/pemohon kredit
 
-    @@map("user_role")
+    @@map("user_role_7b4e1a9c_3f2d_4c6a_8d2f_1e5c9a3b7d4f")
 }
 
 enum Theme {
-    LIGHT  @map("light")
-    DARK   @map("dark")
-    SYSTEM @map("system")
+    LIGHT  @map("light_1f7a3b2c5d4e") // Tema tampilan terang
+    DARK   @map("dark_4f2a1b3c5d4e") // Tema tampilan gelap
+    SYSTEM @map("system_7f2a1b3c5d4e") // Tema mengikuti pengaturan sistem perangkat
 
-    @@map("theme")
+    @@map("theme_4c1e8a3d_9b2f_4c6a_8d2f_5a7e2c1b9d3f")
 }
 
 enum Language {
-    EN @map("en")
-    ID @map("id")
+    EN @map("en_1f7a3b2c5d4e") // Bahasa Inggris
+    ID @map("id_4f2a1b3c5d4e") // Bahasa Indonesia
+    KR @map("kr_7f3a6b4c5d4e") // Bahasa Indonesia
+    JP @map("jp_9f8a8b0c5d4e") // Bahasa Indonesia
 
-    @@map("language")
-}
-
-enum Gender {
-    MALE   @map("male") // Laki-laki
-    FEMALE @map("female") // Perempuan
-
-    @@map("gender")
-}
-
-enum MaritalStatus {
-    SINGLE   @map("single") // Belum menikah
-    MARRIED  @map("married") // Menikah
-    DIVORCED @map("divorced") // Cerai
-    WIDOWED  @map("widowed") // Janda/Duda
-
-    @@map("marital_status")
-}
-
-enum EmploymentType {
-    CIVIL_SERVANT        @map("civil_servant") // Pegawai Negeri Sipil (PNS)
-    PRIVATE_EMPLOYEE     @map("private_employee") // Karyawan swasta
-    STATE_OWNED_EMPLOYEE @map("state_owned_employee") // Pegawai BUMN
-    CONTRACT_EMPLOYEE    @map("contract_employee") // Karyawan kontrak
-    FREELANCER           @map("freelancer") // Pekerja lepas
-    ENTREPRENEUR         @map("entrepreneur") // Wiraswasta
-    BUSINESS_OWNER       @map("business_owner") // Pemilik usaha
-    FARMER               @map("farmer") // Petani
-    FISHERMAN            @map("fisherman") // Nelayan
-    LABORER              @map("laborer") // Buruh
-    TEACHER              @map("teacher") // Guru
-    LECTURER             @map("lecturer") // Dosen
-    HEALTH_WORKER        @map("health_worker") // Tenaga kesehatan
-    STUDENT              @map("student") // Pelajar atau mahasiswa
-    HOMEMAKER            @map("homemaker") // Ibu rumah tangga
-    RETIRED              @map("retired") // Pensiunan
-    UNEMPLOYED           @map("unemployed") // Tidak bekerja
-
-    @@map("employment_type")
-}
-
-enum Relationship {
-    FATHER      @map("father") // Ayah
-    MOTHER      @map("mother") // Ibu
-    HUSBAND     @map("husband") // Suami
-    WIFE        @map("wife") // Istri
-    CHILD       @map("child") // Anak
-    SIBLING     @map("sibling") // Saudara kandung
-    GRANDFATHER @map("grandfather") // Kakek
-    GRANDMOTHER @map("grandmother") // Nenek
-    UNCLE       @map("uncle") // Paman
-    AUNT        @map("aunt") // Bibi
-    COUSIN      @map("cousin") // Sepupu
-    GUARDIAN    @map("guardian") // Wali
-    OTHER       @map("other") // Lainnya
-
-    @@map("relationship")
-}
-
-enum LoanType {
-    PERSONAL     @map("personal") // Kredit tanpa agunan
-    MORTGAGE     @map("mortgage") // KPR
-    VEHICLE      @map("vehicle") // Kredit kendaraan
-    BUSINESS     @map("business") // Kredit usaha
-    MULTIPURPOSE @map("multipurpose") // Kredit multiguna
-
-    @@map("loan_type")
-}
-
-enum ApplicationStatus {
-    DRAFT     @map("draft") // Draft
-    SUBMITTED @map("submitted") // Diajukan
-    REVIEWING @map("reviewing") // Sedang ditinjau
-    APPROVED  @map("approved") // Disetujui
-    REJECTED  @map("rejected") // Ditolak
-    DISBURSED @map("disbursed") // Dicairkan
-    CANCELLED @map("cancelled") // Dibatalkan
-
-    @@map("application_status")
-}
-
-enum CreditScore {
-    ELIGIBLE     @map("eligible") // layak
-    NOT_ELIGIBLE @map("not_eligible") // tidak layak
-
-    @@map("credit_score")
-}
-
-enum LoanStatus {
-    ACTIVE    @map("active") // Aktif
-    COMPLETED @map("completed") // Lunas
-    OVERDUE   @map("overdue") // Menunggak
-    DEFAULT   @map("default") // Macet
-
-    @@map("loan_status")
-}
-
-enum PaymentStatus {
-    ON_TIME @map("on_time") // Tepat waktu
-    LATE    @map("late") // Terlambat
-    PENDING @map("pending") // Menunggu
-
-    @@map("payment_status")
-}
-
-enum ReportType {
-    DAILY     @map("daily") // Laporan harian
-    WEEKLY    @map("weekly") // Laporan mingguan
-    MONTHLY   @map("monthly") // Laporan bulanan
-    QUARTERLY @map("quarterly") // Laporan triwulan
-    YEARLY    @map("yearly") // Laporan tahunan
-    CUSTOM    @map("custom") // Rentang tanggal khusus
-
-    @@map("report_type")
+    @@map("language_9d3b7c1e_2a5f_4c6a_8d2f_3f1e9a7c5b2d")
 }
 
 enum NotificationType {
-    SYSTEM   @map("system") // Notifikasi untuk semua admin
-    PERSONAL @map("personal") // Notifikasi untuk user tertentu
+    SYSTEM   @map("system_2f7a1b3c5d4e") // Notifikasi dari sistem (otomatis)
+    PERSONAL @map("personal_5f2a1b3c5d4e") // Notifikasi personal yang ditujukan ke user tertentu
 
-    @@map("notification_type")
+    @@map("notification_type_6e2a9c4b_1d3f_4c6a_8d2f_7b5c1e3a9d2f")
 }
 
 enum NotificationPriority {
-    LOW    @map("low") // Prioritas rendah
-    NORMAL @map("normal") // Prioritas normal
-    HIGH   @map("high") // Prioritas tinggi
-    URGENT @map("urgent") // Prioritas mendesak
+    LOW    @map("low_1f7a3b2c5d4e") // Prioritas rendah, tidak mendesak
+    NORMAL @map("normal_3f7a2b1c5d4e") // Prioritas normal/standar
+    HIGH   @map("high_6f2a1b3c5d4e") // Prioritas tinggi, perlu segera diperhatikan
+    URGENT @map("urgent_9f2a1b3c5d4e") // Prioritas sangat mendesak, perlu tindakan segera
 
-    @@map("notification_priority")
+    @@map("notification_priority_1f5c3a9e_7b2d_4c6a_8d2f_4d8a2c6e1b3f")
+}
+
+enum Gender {
+    MALE   @map("male_1f7a3b2c5d4e") // Laki-laki
+    FEMALE @map("female_4f2a1b3c5d4e") // Perempuan
+
+    @@map("gender_8a1e4c7d_3f9b_4c6a_8d2f_2e6b9a4c1d7f")
+}
+
+enum MaritalStatus {
+    SINGLE   @map("single_2f7a1b3c5d4e") // Belum menikah
+    MARRIED  @map("married_5f2a1b3c5d4e") // Sudah menikah
+    DIVORCED @map("divorced_8f2a1b3c5d4e") // Cerai hidup
+    WIDOWED  @map("widowed_3f7a2b1c5d4e") // Cerai mati (duda/janda)
+
+    @@map("marital_status_3b7e2a9d_5c1f_4c6a_8d2f_6f3c7b1e4a9d")
+}
+
+enum CreditScore {
+    ELIGIBLE     @map("eligible_1f7a3b2c5d4e") // Layak mendapatkan kredit
+    NOT_ELIGIBLE @map("not_eligible_4f2a1b3c5d4e") // Tidak layak mendapatkan kredit
+
+    @@map("credit_score_5c9a1e3d_7b4f_4c6a_8d2f_1a4e8c2b6d9f")
+}
+
+enum Relationship {
+    FATHER      @map("father_2f7a1b3c5d4e") // Ayah kandung
+    MOTHER      @map("mother_5f2a1b3c5d4e") // Ibu kandung
+    HUSBAND     @map("husband_8f2a1b3c5d4e") // Suami
+    WIFE        @map("wife_3f7a2b1c5d4e") // Istri
+    CHILD       @map("child_6f2a1b3c5d4e") // Anak kandung
+    SIBLING     @map("sibling_9f2a1b3c5d4e") // Saudara kandung (kakak/adik)
+    GRANDFATHER @map("grandfather_1f7a3b2c5d4e") // Kakek
+    GRANDMOTHER @map("grandmother_4f2a1b3c5d4e") // Nenek
+    UNCLE       @map("uncle_7f2a1b3c5d4e") // Paman
+    AUNT        @map("aunt_2f7a1b3c5d4e") // Bibi
+    COUSIN      @map("cousin_5f2a1b3c5d4e") // Sepupu
+    GUARDIAN    @map("guardian_8f2a1b3c5d4e") // Wali/perwalian
+    OTHER       @map("other_3f7a2b1c5d4e") // Hubungan lainnya
+
+    @@map("relationship_2d6b4e1a_9c3f_4c6a_8d2f_8c1a5e3b7d9f")
+}
+
+enum EmploymentType {
+    CIVIL_SERVANT        @map("civil_servant_1f7a3b2c5d4e") // Pegawai Negeri Sipil (PNS)
+    PRIVATE_EMPLOYEE     @map("private_employee_4f2a1b3c5d4e") // Karyawan swasta
+    STATE_OWNED_EMPLOYEE @map("state_owned_employee_7f2a1b3c5d4e") // Karyawan Badan Usaha Milik Negara (BUMN)
+    CONTRACT_EMPLOYEE    @map("contract_employee_2f7a1b3c5d4e") // Karyawan kontrak/PKWT
+    FREELANCER           @map("freelancer_5f2a1b3c5d4e") // Pekerja lepas/freelance
+    ENTREPRENEUR         @map("entrepreneur_8f2a1b3c5d4e") // Wirausahawan
+    BUSINESS_OWNER       @map("business_owner_3f7a2b1c5d4e") // Pemilik usaha
+    FARMER               @map("farmer_6f2a1b3c5d4e") // Petani
+    FISHERMAN            @map("fisherman_9f2a1b3c5d4e") // Nelayan
+    LABORER              @map("laborer_1f7a3b2c5d4e") // Buruh harian
+    TEACHER              @map("teacher_4f2a1b3c5d4e") // Guru
+    LECTURER             @map("lecturer_7f2a1b3c5d4e") // Dosen
+    HEALTH_WORKER        @map("health_worker_2f7a1b3c5d4e") // Tenaga kesehatan (dokter, perawat, dll)
+    STUDENT              @map("student_5f2a1b3c5d4e") // Pelajar/mahasiswa
+    HOMEMAKER            @map("homemaker_8f2a1b3c5d4e") // Ibu rumah tangga
+    RETIRED              @map("retired_3f7a2b1c5d4e") // Pensiunan
+    UNEMPLOYED           @map("unemployed_6f2a1b3c5d4e") // Tidak bekerja/pengangguran
+
+    @@map("employment_type_7f1c5a3e_2b9d_4c6a_8d2f_3e7b2c9a1d5f")
+}
+
+enum DocumentOwner {
+    CUSTOMER  @map("customer_1f7a3b2c5d4e") // Dokumen milik nasabah/customer
+    GUARANTOR @map("guarantor_4f2a1b3c5d4e") // Dokumen milik penjamin/guarantor
+
+    @@map("document_owner_4a8e2c1d_6b3f_4c6a_8d2f_9d4c1e7a3b6f")
+}
+
+enum LoanType {
+    ASN_CREDIT                            @map("asn_credit_2f7a1b3c5d4e") // Kredit Aparatur Sipil Negara (ASN)
+    GENERAL_CREDIT                        @map("general_credit_5f2a1b3c5d4e") // Kredit umum untuk masyarakat
+    SEASONAL_CREDIT                       @map("seasonal_credit_8f2a1b3c5d4e") // Kredit musiman (pertanian/perkebunan)
+    BLITAR_CITY_GOVERNMENT_PROGRAM_CREDIT @map("blitar_city_government_program_credit_3f7a2b1c5d4e") // Kredit program Pemerintah Kota Blitar
+
+    @@map("loan_type_9c3e7b1a_4d2f_4c6a_8d2f_5b9a3c7e1d4f")
+}
+
+enum ApplicationStatus {
+    DRAFT     @map("draft_1f7a3b2c5d4e") // Pengajuan masih dalam tahap penyusunan
+    SUBMITTED @map("submitted_4f2a1b3c5d4e") // Pengajuan telah dikirimkan oleh customer
+    REVIEWING @map("reviewing_7f2a1b3c5d4e") // Pengajuan sedang diulas oleh admin/reviewer
+    APPROVED  @map("approved_2f7a1b3c5d4e") // Pengajuan telah disetujui
+    REJECTED  @map("rejected_5f2a1b3c5d4e") // Pengajuan ditolak
+    DISBURSED @map("disbursed_8f2a1b3c5d4e") // Dana pinjaman telah dicairkan
+    CANCELLED @map("cancelled_3f7a2b1c5d4e") // Pengajuan dibatalkan
+
+    @@map("application_status_1e4a9d3c_7b5f_4c6a_8d2f_2c6e1a9b4d7f")
+}
+
+enum CreditHistory {
+    GOOD @map("good_2f7a1b3c5d4e") // Riwayat kredit baik
+    BAD  @map("bad_3f7a2b1c5d4e") // Riwayat kredit buruk
+
+    @@map("credit_history_7c4e1a9c_3f2d_4c6a_8d2f_1e5c9a3b7d4f")
 }
 
 enum QuestionType {
-    SINGLE_CHOICE   @map("single_choice") // Pilihan tunggal (radio)
-    MULTIPLE_CHOICE @map("multiple_choice") // Pilihan ganda (checkbox)
-    YES_NO          @map("yes_no") // Ya/Tidak
-    TRUE_FALSE      @map("true_false") // Benar/Salah
-    RATING          @map("rating") // Rating (1-5 stars)
-    SCALE           @map("scale") // Skala (1-10)
-    PERCENTAGE      @map("percentage") // Input persentase
+    SHORT_TEXT      @map("short_text_1f7a3b2c5d4e") // Jawaban teks singkat (satu baris)
+    LONG_TEXT       @map("long_text_4f2a1b3c5d4e") // Jawaban teks panjang (paragraf)
+    SINGLE_CHOICE   @map("single_choice_7f2a1b3c5d4e") // Pilihan tunggal dari beberapa opsi
+    MULTIPLE_CHOICE @map("multiple_choice_2f7a1b3c5d4e") // Pilihan ganda dari beberapa opsi
+    YES_NO          @map("yes_no_5f2a1b3c5d4e") // Jawaban ya atau tidak
+    TRUE_FALSE      @map("true_false_8f2a1b3c5d4e") // Jawaban benar atau salah
 
-    @@map("question_type")
+    @@map("question_type_6b2d8e1c_3a9f_4c6a_8d2f_7a3d5c2e9b1f")
 }
 
 enum QuestionCategory {
-    PERSONAL       @map("personal") // Data personal
-    IDENTITY       @map("identity") // Identitas (KTP, SIM, dll)
-    CONTACT        @map("contact") // Kontak
-    ADDRESS        @map("address") // Alamat
-    EMPLOYMENT     @map("employment") // Pekerjaan
-    INCOME         @map("income") // Pendapatan
-    EXPENSE        @map("expense") // Pengeluaran
-    FINANCIAL      @map("financial") // Keuangan umum
-    BUSINESS       @map("business") // Bisnis
-    COLLATERAL     @map("collateral") // Jaminan/Agunan
-    REFERENCE      @map("reference") // Referensi
-    EMERGENCY      @map("emergency") // Kontak darurat
-    EDUCATION      @map("education") // Pendidikan
-    FAMILY         @map("family") // Keluarga
-    LOAN_PURPOSE   @map("loan_purpose") // Tujuan pinjaman
-    CREDIT_HISTORY @map("credit_history") // Riwayat kredit
-    ASSETS         @map("assets") // Aset
-    LIABILITIES    @map("liabilities") // Kewajiban/Hutang
-    BANK_ACCOUNT   @map("bank_account") // Rekening bank
-    OTHER          @map("other") // Lainnya
+    PERSONAL       @map("personal_1f7a3b2c5d4e") // Pertanyaan seputar data pribadi
+    IDENTITY       @map("identity_4f2a1b3c5d4e") // Pertanyaan seputar identitas kependudukan
+    CONTACT        @map("contact_7f2a1b3c5d4e") // Pertanyaan seputar kontak (telepon, email)
+    ADDRESS        @map("address_2f7a1b3c5d4e") // Pertanyaan seputar alamat tinggal
+    EMPLOYMENT     @map("employment_5f2a1b3c5d4e") // Pertanyaan seputar pekerjaan
+    INCOME         @map("income_8f2a1b3c5d4e") // Pertanyaan seputar pendapatan
+    EXPENSE        @map("expense_3f7a2b1c5d4e") // Pertanyaan seputar pengeluaran
+    FINANCIAL      @map("financial_6f2a1b3c5d4e") // Pertanyaan seputar kondisi keuangan umum
+    BUSINESS       @map("business_9f2a1b3c5d4e") // Pertanyaan seputar usaha/bisnis
+    COLLATERAL     @map("collateral_1f7a3b2c5d4e") // Pertanyaan seputar agunan/jaminan
+    REFERENCE      @map("reference_4f2a1b3c5d4e") // Pertanyaan seputar referensi/rekomendasi
+    EMERGENCY      @map("emergency_7f2a1b3c5d4e") // Pertanyaan seputar kontak darurat
+    EDUCATION      @map("education_2f7a1b3c5d4e") // Pertanyaan seputar riwayat pendidikan
+    FAMILY         @map("family_5f2a1b3c5d4e") // Pertanyaan seputar data keluarga
+    LOAN_PURPOSE   @map("loan_purpose_8f2a1b3c5d4e") // Pertanyaan seputar tujuan penggunaan pinjaman
+    CREDIT_HISTORY @map("credit_history_3f7a2b1c5d4e") // Pertanyaan seputar riwayat kredit sebelumnya
+    ASSETS         @map("assets_6f2a1b3c5d4e") // Pertanyaan seputar aset yang dimiliki
+    LIABILITIES    @map("liabilities_9f2a1b3c5d4e") // Pertanyaan seputar kewajiban/hutang yang ada
+    BANK_ACCOUNT   @map("bank_account_1f7a3b2c5d4e") // Pertanyaan seputar rekening bank
+    OTHER          @map("other_4f2a1b3c5d4e") // Kategori pertanyaan lainnya
 
-    @@map("question_category")
+    @@map("question_category_3d7a1c9e_5b4f_4c6a_8d2f_4e8b3d1a7c5f")
+}
+
+enum PaymentStatus {
+    ON_TIME @map("on_time_1f7a3b2c5d4e") // Pembayaran dilakukan tepat waktu
+    LATE    @map("late_4f2a1b3c5d4e") // Pembayaran dilakukan terlambat dari jatuh tempo
+    PENDING @map("pending_7f2a1b3c5d4e") // Pembayaran belum dilakukan/menunggu
+
+    @@map("payment_status_5a9c2e7d_1b3f_4c6a_8d2f_9f5a2c8e3b1d")
+}
+
+enum PaymentCategory {
+    PRINCIPAL              @map("principal_2f7a1b3c5d4e") // Pembayaran komponen pokok pinjaman
+    INTEREST               @map("interest_5f2a1b3c5d4e") // Pembayaran komponen bunga pinjaman
+    INSTALLMENT            @map("installment_8f2a1b3c5d4e") // Pembayaran cicilan reguler (pokok + bunga)
+    PRINCIPAL_SETTLEMENT   @map("principal_settlement_3f7a2b1c5d4e") // Pelunasan sisa pokok pinjaman
+    INTEREST_SETTLEMENT    @map("interest_settlement_6f2a1b3c5d4e") // Pelunasan sisa bunga pinjaman
+    INSTALLMENT_SETTLEMENT @map("installment_settlement_9f2a1b3c5d4e") // Pelunasan seluruh sisa cicilan sekaligus
+
+    @@map("payment_category_2c6e4a1b_8d9f_4c6a_8d2f_1b7d4c9e2a6f")
+}
+
+enum ReportType {
+    DAILY     @map("daily_1f7a3b2c5d4e") // Laporan harian
+    WEEKLY    @map("weekly_4f2a1b3c5d4e") // Laporan mingguan
+    MONTHLY   @map("monthly_7f2a1b3c5d4e") // Laporan bulanan
+    QUARTERLY @map("quarterly_2f7a1b3c5d4e") // Laporan per kuartal (3 bulan)
+    YEARLY    @map("yearly_5f2a1b3c5d4e") // Laporan tahunan
+    CUSTOM    @map("custom_8f2a1b3c5d4e") // Laporan dengan rentang waktu kustom
+
+    @@map("report_type_7d3b9a5c_2e1f_4c6a_8d2f_3a5b8d1c7e2f")
+}
+
+enum LoanStatus {
+    ACTIVE    @map("active_2f7a1b3c5d4e") // Pinjaman sedang berjalan aktif
+    COMPLETED @map("completed_5f2a1b3c5d4e") // Pinjaman telah lunas/selesai
+    OVERDUE   @map("overdue_8f2a1b3c5d4e") // Pinjaman mengalami keterlambatan pembayaran
+    DEFAULT   @map("default_3f7a2b1c5d4e") // Pinjaman dalam status gagal bayar
+    CLOSED    @map("closed_6f2a1b3c5d4e") // Pinjaman telah ditutup
+
+    @@map("loan_status_8e1b5c3a_9d7f_4c6a_8d2f_6c2e9b4a1d8f")
+}
+
+enum EducationLevel {
+    ELEMENTARY_SCHOOL @map("elementary_school_1f7a3b2c5d4e") // Sekolah Dasar (SD)
+    JUNIOR_HIGH       @map("junior_high_4f2a1b3c5d4e") // Sekolah Menengah Pertama (SMP)
+    SENIOR_HIGH       @map("senior_high_7f2a1b3c5d4e") // Sekolah Menengah Atas (SMA)
+    DIPLOMA           @map("diploma_2f7a1b3c5d4e") // Diploma (D1/D2/D3)
+    BACHELOR          @map("bachelor_5f2a1b3c5d4e") // Sarjana (S1)
+    MASTER            @map("master_8f2a1b3c5d4e") // Magister (S2)
+    DOCTORAL          @map("doctoral_3f7a2b1c5d4e") // Doktor (S3)
+    OTHER             @map("other_6f2a1b3c5d4e") // Lainnya
+
+    @@map("education_level_2c1e8a3d_9b2f_4c6a_8d2f_5a7e2c1b9d3f")
+}
+
+enum IncomeType {
+    SALARY     @map("salary_1f7a3b2c5d4e") // Gaji tetap dari perusahaan
+    FREELANCE  @map("freelance_4f2a1b3c5d4e") // Pendapatan tidak tetap/lepas
+    BUSINESS   @map("business_7f2a1b3c5d4e") // Pendapatan dari usaha sendiri
+    INVESTMENT @map("investment_2f7a1b3c5d4e") // Pendapatan dari investasi
+    PENSION    @map("pension_5f2a1b3c5d4e") // Pendapatan pensiun
+    OTHER      @map("other_8f2a1b3c5d4e") // Pendapatan lainnya
+
+    @@map("income_type_5c1e8a3d_9b2f_4c6a_8d2f_5a7e2c1b9d3f")
+}
+
+enum ResidenceStatus {
+    OWN        @map("own_1f7a3b2c5d4e") // Rumah milik sendiri
+    MORTGAGE   @map("mortgage_4f2a1b3c5d4e") // Rumah masih dalam cicilan KPR
+    RENT       @map("rent_7f2a1b3c5d4e") // Rumah sewa/kontrak
+    FAMILY     @map("family_2f7a1b3c5d4e") // Tinggal bersama keluarga
+    GOVERNMENT @map("government_5f2a1b3c5d4e") // Rumah dinas pemerintah
+    OTHER      @map("other_8f2a1b3c5d4e") // Status tempat tinggal lainnya
+
+    @@map("residence_status_8c1e8a3d_9b2f_4c6a_8d2f_5a7e2c1b9d3f")
 }
